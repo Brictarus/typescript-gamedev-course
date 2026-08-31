@@ -13,6 +13,7 @@ export class Game {
   private player: Player;
   private keys: Keys;
   private lastTime: DOMHighResTimeStamp;
+  private time: number;
   private readonly imageManager: ImageManager;
   readonly audioManager: AudioManager;
   private readonly uiManager: UIManager;
@@ -29,6 +30,7 @@ export class Game {
     this.player = new Player();
     this.keys = {};
     this.lastTime = 0;
+    this.time = 0;
     this.state = 'menu';
 
     this.init();
@@ -66,6 +68,11 @@ export class Game {
     const cappedDeltaTime = Math.min(deltaTime, 0.1);
     this.lastTime = time;
 
+    if (this.state === 'playing') {
+      this.time += cappedDeltaTime;
+      this.uiManager.updateTimer(this.time);
+    }
+
     this.update(cappedDeltaTime);
     this.renderSystem.render(this.state, this.player);
     window.requestAnimationFrame((t) => this.gameLoop(t));
@@ -98,6 +105,8 @@ export class Game {
     this.audioManager.play('button_click');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
+    this.time = 0;
+    this.uiManager.showTimer();
 
     this.player.reset();
 
@@ -119,6 +128,7 @@ export class Game {
   returnToMenu() {
     this.audioManager.play('button_click');
     this.state = 'menu';
+    this.uiManager.hideTimer();
     this.uiManager.showPanel('mainMenu');
   }
 
