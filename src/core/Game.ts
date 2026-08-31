@@ -60,8 +60,8 @@ export class Game {
       width = availableWidth;
       height = availableWidth / ratio;
     }
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = GAME_WIDTH;
+    this.canvas.height = GAME_HEIGHT;
 
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
