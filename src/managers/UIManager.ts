@@ -7,27 +7,36 @@ export class UIManager {
   private pauseMenuEl: HTMLElement | null;
   private loadingScreenEl: HTMLElement | null;
 
+  private playBtnEl: HTMLElement | null;
+  private resumeBtnEl: HTMLElement | null;
+  private quitBtnEl: HTMLElement | null;
+
   constructor(game: Game) {
     this.game = game;
     this.timerEl = document.getElementById('timer');
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
     this.loadingScreenEl = document.getElementById('loadingScreen');
+
+    this.playBtnEl = document.getElementById('playBtn');
+    this.resumeBtnEl = document.getElementById('resumeBtn');
+    this.quitBtnEl = document.getElementById('quitBtn');
+
     this.setupEventListeners();
   }
 
   private setupEventListeners() {
-    document.getElementById('playBtn')?.addEventListener('click', () => {
+    this.playBtnEl?.addEventListener('click', () => {
       this.game.startGame();
     });
-    document.getElementById('resumeBtn')?.addEventListener('click', () => {
+    this.resumeBtnEl?.addEventListener('click', () => {
       this.game.resume();
     });
-    document.getElementById('quitBtn')?.addEventListener('click', () => {
+    this.quitBtnEl?.addEventListener('click', () => {
       this.game.returnToMenu();
     });
-    document.querySelectorAll('button').forEach((button) => {
-      button.addEventListener('mouseenter', () =>
+    [this.playBtnEl, this.resumeBtnEl, this.quitBtnEl].forEach((button) => {
+      button?.addEventListener('mouseenter', () =>
         this.game.playSound('button_hover'),
       );
     });
