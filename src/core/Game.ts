@@ -64,6 +64,7 @@ export class Game {
     if (this.state !== 'playing') return;
 
     this.player.update(deltaTime, this.keys);
+    this.enemyManager.update(deltaTime, this.player);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {

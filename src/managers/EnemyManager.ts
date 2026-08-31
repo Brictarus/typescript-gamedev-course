@@ -1,5 +1,6 @@
 import { Enemy } from '../entities/Enemy.ts';
 import { enemyData } from '../data/enemyData.ts';
+import type { Player } from '../entities/Player.ts';
 
 export class EnemyManager {
   private enemy: Enemy;
@@ -14,5 +15,9 @@ export class EnemyManager {
 
   getActiveEnemies(): Enemy[] {
     return [this.enemy];
+  }
+
+  update(deltaTime: number, player: Player) {
+    this.enemy.update(deltaTime, player);
   }
 }
