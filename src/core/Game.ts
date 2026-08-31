@@ -4,22 +4,29 @@ import { Player } from '../entities/Player.ts';
 import type { Keys } from '../systems/input/Keys.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 
+type GameState = 'menu' | 'playing';
+
 export class Game {
   private canvas: HTMLCanvasElement;
   private player: Player;
   private keys: Keys;
-  private lastTime: DOMHighResTimeStamp = 0;
+  private lastTime: DOMHighResTimeStamp;
   private imageManager: ImageManager;
   private renderSystem: RenderSystem;
+  private state: GameState;
+  private ctx: CanvasRenderingContext2D;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+    this.ctx = this.canvas.getContext('2d')!;
 
     this.imageManager = new ImageManager();
     this.imageManager.loadAll();
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.player = new Player();
     this.keys = {};
+    this.lastTime = 0;
+    this.state = 'menu';
 
     this.init();
   }
@@ -28,13 +35,25 @@ export class Game {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
     this.setupInput();
+    this.setupUI();
 
     this.lastTime = performance.now();
     window.requestAnimationFrame((time) => this.gameLoop(time));
   }
 
   private update(deltaTime: number) {
+    if (this.state !== 'playing') return;
+
     this.player.update(deltaTime, this.keys);
+  }
+
+  private render() {
+    if (this.state === 'menu') {
+      this.ctx.fillStyle = '#0f3460';
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    } else {
+      this.renderSystem.render(this.player);
+    }
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -43,7 +62,7 @@ export class Game {
     this.lastTime = time;
 
     this.update(cappedDeltaTime);
-    this.renderSystem.render(this.player);
+    this.render();
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 
@@ -60,6 +79,23 @@ export class Game {
     window.addEventListener('blur', () => {
       this.keys = {};
     });
+  }
+
+  private setupUI() {
+    document
+      .getElementById('playBtn')
+      ?.addEventListener('click', () => this.startGame());
+  }
+
+  private hideAllPanels() {
+    document
+      .querySelectorAll('.ui-panel')
+      .forEach((panel) => panel.classList.remove('active'));
+  }
+
+  private startGame() {
+    this.state = 'playing';
+    this.hideAllPanels();
   }
 
   private resizeCanvas() {
