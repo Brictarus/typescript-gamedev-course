@@ -57,6 +57,10 @@ export class Game {
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
+    if (this.lastTime === 0) {
+      this.lastTime = time;
+    }
+
     const deltaTime = (time - this.lastTime) / 1_000;
     const cappedDeltaTime = Math.min(deltaTime, 0.1);
     this.lastTime = time;
@@ -98,7 +102,7 @@ export class Game {
       ?.addEventListener('click', () => this.resume());
     document
       .getElementById('quitBtn')
-      ?.addEventListener('click', () => this.quitToMenu());
+      ?.addEventListener('click', () => this.returnToMenu());
   }
 
   private hideAllPanels() {
@@ -110,6 +114,10 @@ export class Game {
   private startGame() {
     this.state = 'playing';
     this.hideAllPanels();
+
+    this.player.reset();
+
+    this.lastTime = performance.now();
   }
 
   private pause() {
@@ -120,10 +128,6 @@ export class Game {
   private resume() {
     this.state = 'playing';
     document.getElementById('pauseMenu')?.classList.remove('active');
-  }
-
-  private quitToMenu() {
-    this.returnToMenu();
   }
 
   private returnToMenu() {

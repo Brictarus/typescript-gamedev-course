@@ -15,7 +15,13 @@ export class Player {
 
     this.x = (GAME_WIDTH - this.width) / 2;
     this.y = (GAME_HEIGHT - this.height) / 2;
+    this.speedMultiplier = 1;
     this.speed = 300;
+  }
+
+  reset() {
+    this.x = (GAME_WIDTH - this.width) / 2;
+    this.y = (GAME_HEIGHT - this.height) / 2;
     this.speedMultiplier = 1;
   }
 
