@@ -1,23 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>game-dev-vampire-survivors-clone</title>
-  </head>
-  <body>
-    <div id="gameContainer">
-      <canvas id="gameCanvas"></canvas>
-      <div id="mainMenu" class="ui-panel active">
+</head>
+<body>
+<div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="mainMenu" class="ui-panel active">
         <h1>Game starter Kit</h1>
         <button id="playBtn">Play</button>
-        <div>
-          <div>ZQSD - Move</div>
-          <div>ESC - Pause</div>
+        <div style="margin-top: 20px; font-size: 12px">
+            <div>ZQSD - Move</div>
+            <div>ESC - Pause</div>
         </div>
-      </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    <div id="pauseMenu" class="ui-panel">
+        <h2>PAUSED</h2>
+        <button id="resumeBtn">RESUME</button>
+        <button id="quitBtn">QUIT TO MENU</button>
+    </div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>

@@ -4,7 +4,7 @@ import { Player } from '../entities/Player.ts';
 import type { Keys } from '../systems/input/Keys.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 
-type GameState = 'menu' | 'playing';
+type GameState = 'menu' | 'playing' | 'paused';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -69,6 +69,14 @@ export class Game {
   private setupInput() {
     window.addEventListener('keydown', (e) => {
       this.keys[e.key.toLowerCase()] = true;
+
+      if (e.key === 'Escape') {
+        if (this.state === 'playing') {
+          this.pause();
+        } else if (this.state === 'paused') {
+          this.resume();
+        }
+      }
     });
     window.addEventListener('keyup', (e) => {
       this.keys[e.key.toLowerCase()] = false;
@@ -85,6 +93,12 @@ export class Game {
     document
       .getElementById('playBtn')
       ?.addEventListener('click', () => this.startGame());
+    document
+      .getElementById('resumeBtn')
+      ?.addEventListener('click', () => this.resume());
+    document
+      .getElementById('quitBtn')
+      ?.addEventListener('click', () => this.quitToMenu());
   }
 
   private hideAllPanels() {
@@ -96,6 +110,26 @@ export class Game {
   private startGame() {
     this.state = 'playing';
     this.hideAllPanels();
+  }
+
+  private pause() {
+    this.state = 'paused';
+    document.getElementById('pauseMenu')?.classList.add('active');
+  }
+
+  private resume() {
+    this.state = 'playing';
+    document.getElementById('pauseMenu')?.classList.remove('active');
+  }
+
+  private quitToMenu() {
+    this.returnToMenu();
+  }
+
+  private returnToMenu() {
+    this.state = 'menu';
+    this.hideAllPanels();
+    document.getElementById('mainMenu')?.classList.add('active');
   }
 
   private resizeCanvas() {
