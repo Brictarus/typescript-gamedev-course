@@ -7,16 +7,18 @@ export class Player {
   width: number;
   height: number;
   private speed: number;
+  private speedMultiplier: number;
 
   constructor() {
     this.x = GAME_WIDTH / 2;
     this.y = GAME_HEIGHT / 2;
     this.width = 64;
     this.height = 64;
-    this.speed = 10;
+    this.speed = 100;
+    this.speedMultiplier = 1;
   }
 
-  update(keys: Keys) {
+  update(deltaTime: number, keys: Keys) {
     let dx = 0;
     let dy = 0;
 
@@ -30,8 +32,8 @@ export class Player {
       dx /= length;
       dy /= length;
 
-      this.x += dx * this.speed;
-      this.y += dy * this.speed;
+      this.x += dx * this.speed * this.speedMultiplier * deltaTime;
+      this.y += dy * this.speed * this.speedMultiplier * deltaTime;
     }
 
     this.x = Math.max(0, Math.min(GAME_WIDTH - this.width, this.x));

@@ -8,6 +8,7 @@ export class Game {
   private renderSystem: RenderSystem;
   private player: Player;
   private keys: Keys;
+  private lastTime: DOMHighResTimeStamp = 0;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -22,17 +23,22 @@ export class Game {
   private init() {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
-
     this.setupInput();
+
+    this.lastTime = performance.now();
     window.requestAnimationFrame((time) => this.gameLoop(time));
   }
 
-  private update() {
-    this.player.update(this.keys);
+  private update(deltaTime: number) {
+    this.player.update(deltaTime, this.keys);
   }
 
-  private gameLoop(_time: DOMHighResTimeStamp) {
-    this.update();
+  private gameLoop(time: DOMHighResTimeStamp) {
+    const deltaTime = (time - this.lastTime) / 1_000;
+    const cappedDeltaTime = Math.min(deltaTime, 0.1);
+    this.lastTime = time;
+
+    this.update(cappedDeltaTime);
     this.renderSystem.render(this.player);
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
