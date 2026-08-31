@@ -58,6 +58,6 @@ export class RenderSystem {
 
   private renderMenuBackground() {
     this.ctx.fillStyle = '#0f3460';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   }
 }
