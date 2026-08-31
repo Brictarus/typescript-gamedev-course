@@ -2,9 +2,17 @@ import type { Game } from '../core/Game.ts';
 
 export class UIManager {
   private game: Game;
+  private timerEl: HTMLElement | null;
+  private mainMenuEl: HTMLElement | null;
+  private pauseMenuEl: HTMLElement | null;
+  private loadingScreenEl: HTMLElement | null;
 
   constructor(game: Game) {
     this.game = game;
+    this.timerEl = document.getElementById('timer');
+    this.mainMenuEl = document.getElementById('mainMenu');
+    this.pauseMenuEl = document.getElementById('pauseMenu');
+    this.loadingScreenEl = document.getElementById('loadingScreen');
     this.setupEventListeners();
   }
 
@@ -26,36 +34,34 @@ export class UIManager {
   }
 
   hideAllPanels() {
-    document
-      .querySelectorAll('.ui-panel')
-      .forEach((panel) => panel.classList.remove('active'));
+    [this.mainMenuEl, this.pauseMenuEl, this.loadingScreenEl].forEach((panel) =>
+      panel?.classList.remove('active'),
+    );
   }
 
-  showPanel(panelId: string) {
+  showPanel(panelId: 'mainMenu' | 'pauseMenu' | 'loadingScreen') {
     this.hideAllPanels();
+    this[`${panelId}El`]?.classList.add('active');
     document.getElementById(panelId)?.classList.add('active');
   }
 
   showTimer() {
-    const timerElement = document.getElementById('timer');
-    if (timerElement) {
-      timerElement.style.display = 'block';
+    if (this.timerEl) {
+      this.timerEl.style.display = 'block';
     }
   }
 
   hideTimer() {
-    const timerElement = document.getElementById('timer');
-    if (timerElement) {
-      timerElement.style.display = 'none';
+    if (this.timerEl) {
+      this.timerEl.style.display = 'none';
     }
   }
 
   updateTimer(time: number) {
+    if (!this.timerEl) return;
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    const timerElement = document.getElementById('timer');
-    if (timerElement) {
-      timerElement.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
-    }
+
+    this.timerEl.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
   }
 }
