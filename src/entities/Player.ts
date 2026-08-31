@@ -23,9 +23,9 @@ export class Player {
     let dx = 0;
     let dy = 0;
 
-    if (keys['w'] || keys['arrowup']) dy -= 1;
+    if (keys['z'] || keys['arrowup']) dy -= 1;
     if (keys['s'] || keys['arrowdown']) dy += 1;
-    if (keys['a'] || keys['arrowleft']) dx -= 1;
+    if (keys['q'] || keys['arrowleft']) dx -= 1;
     if (keys['d'] || keys['arrowright']) dx += 1;
 
     if (dx || dy) {
