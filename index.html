@@ -9,7 +9,7 @@
 <body>
 <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="mainMenu" class="ui-panel active">
+    <div id="mainMenu" class="ui-panel">
         <h1>Game starter Kit</h1>
         <button id="playBtn">Play</button>
         <div style="margin-top: 20px; font-size: 12px">
@@ -21,6 +21,10 @@
         <h2>PAUSED</h2>
         <button id="resumeBtn">RESUME</button>
         <button id="quitBtn">QUIT TO MENU</button>
+    </div>
+    <div id="loadingScreen" class="ui-panel active">
+        <h2>Loading...</h2>
+        <p>Sharpening the pixels...</p>
     </div>
 </div>
 <script type="module" src="/src/main.ts"></script>

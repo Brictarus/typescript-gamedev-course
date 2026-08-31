@@ -21,7 +21,6 @@ export class Game {
     this.ctx = this.canvas.getContext('2d')!;
 
     this.imageManager = new ImageManager();
-    this.imageManager.loadAll();
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.player = new Player();
     this.keys = {};
@@ -31,7 +30,15 @@ export class Game {
     this.init();
   }
 
-  private init() {
+  private async init() {
+    await Promise.all([
+      this.imageManager.loadAll(),
+      new Promise((resolve) => setTimeout(resolve, 5_000)),
+    ]);
+
+    document.getElementById('loadingScreen')?.classList.remove('active');
+    document.getElementById('mainMenu')?.classList.add('active');
+
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
     this.setupInput();
