@@ -35,4 +35,27 @@ export class UIManager {
     this.hideAllPanels();
     document.getElementById(panelId)?.classList.add('active');
   }
+
+  showTimer() {
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+      timerElement.style.display = 'block';
+    }
+  }
+
+  hideTimer() {
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+      timerElement.style.display = 'none';
+    }
+  }
+
+  updateTimer(time: number) {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+      timerElement.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
+    }
+  }
 }
