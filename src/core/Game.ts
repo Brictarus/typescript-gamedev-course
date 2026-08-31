@@ -50,6 +50,12 @@ export class Game {
     window.addEventListener('keyup', (e) => {
       this.keys[e.key.toLowerCase()] = false;
     });
+    window.addEventListener('contextmenu', () => {
+      this.keys = {};
+    });
+    window.addEventListener('blur', () => {
+      this.keys = {};
+    });
   }
 
   private resizeCanvas() {
