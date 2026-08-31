@@ -4,6 +4,7 @@ import { Player } from '../entities/Player.ts';
 import type { Keys } from '../systems/input/Keys.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 import { AudioManager } from '../managers/AudioManager.ts';
+import { UIManager } from '../managers/UIManager.ts';
 
 export type GameState = 'menu' | 'playing' | 'paused';
 
@@ -13,7 +14,8 @@ export class Game {
   private keys: Keys;
   private lastTime: DOMHighResTimeStamp;
   private readonly imageManager: ImageManager;
-  private readonly audioManager: AudioManager;
+  readonly audioManager: AudioManager;
+  private readonly uiManager: UIManager;
   private readonly renderSystem: RenderSystem;
   private state: GameState;
 
@@ -23,6 +25,7 @@ export class Game {
     this.imageManager = new ImageManager();
     this.audioManager = new AudioManager();
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
+    this.uiManager = new UIManager(this);
     this.player = new Player();
     this.keys = {};
     this.lastTime = 0;
@@ -38,13 +41,11 @@ export class Game {
       new Promise((resolve) => setTimeout(resolve, 1_000)),
     ]);
 
-    document.getElementById('loadingScreen')?.classList.remove('active');
-    document.getElementById('mainMenu')?.classList.add('active');
+    this.uiManager.showPanel('mainMenu');
 
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
     this.setupInput();
-    this.setupUI();
 
     this.lastTime = performance.now();
     window.requestAnimationFrame((time) => this.gameLoop(time));
@@ -55,6 +56,7 @@ export class Game {
 
     this.player.update(deltaTime, this.keys);
   }
+
   private gameLoop(time: DOMHighResTimeStamp) {
     if (this.lastTime === 0) {
       this.lastTime = time;
@@ -92,57 +94,32 @@ export class Game {
     });
   }
 
-  private setupUI() {
-    document.getElementById('playBtn')?.addEventListener('click', () => {
-      this.audioManager.play('button_click');
-      this.startGame();
-    });
-    document.getElementById('resumeBtn')?.addEventListener('click', () => {
-      this.audioManager.play('button_click');
-      this.resume();
-    });
-    document.getElementById('quitBtn')?.addEventListener('click', () => {
-      this.audioManager.play('button_click');
-      this.returnToMenu();
-    });
-    document.querySelectorAll('button').forEach((button) => {
-      button.addEventListener('mouseenter', () =>
-        this.audioManager.play('button_hover'),
-      );
-    });
-  }
-
-  private hideAllPanels() {
-    document
-      .querySelectorAll('.ui-panel')
-      .forEach((panel) => panel.classList.remove('active'));
-  }
-
-  private startGame() {
+  startGame() {
+    this.audioManager.play('button_click');
     this.state = 'playing';
-    this.hideAllPanels();
+    this.uiManager.hideAllPanels();
 
     this.player.reset();
 
     this.lastTime = performance.now();
   }
 
-  private pause() {
+  pause() {
     this.audioManager.play('pause');
     this.state = 'paused';
-    document.getElementById('pauseMenu')?.classList.add('active');
+    this.uiManager.showPanel('pauseMenu');
   }
 
-  private resume() {
+  resume() {
     this.audioManager.play('unpause');
     this.state = 'playing';
-    document.getElementById('pauseMenu')?.classList.remove('active');
+    this.uiManager.hideAllPanels();
   }
 
-  private returnToMenu() {
+  returnToMenu() {
+    this.audioManager.play('button_click');
     this.state = 'menu';
-    this.hideAllPanels();
-    document.getElementById('mainMenu')?.classList.add('active');
+    this.uiManager.showPanel('mainMenu');
   }
 
   private resizeCanvas() {
