@@ -1,4 +1,5 @@
 import { GAME_HEIGHT, GAME_WIDTH, GRID_SIZE } from '../core/constants.ts';
+import type { Player } from '../entities/Player.ts';
 
 export class RenderSystem {
   private ctx: CanvasRenderingContext2D;
@@ -7,10 +8,11 @@ export class RenderSystem {
     this.ctx = canvas.getContext('2d')!;
   }
 
-  render() {
+  render(player: Player) {
     this.ctx.fillStyle = '#0f3460';
     this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     this.renderGrid();
+    this.renderPlayer(player);
   }
 
   private renderGrid() {
@@ -30,5 +32,12 @@ export class RenderSystem {
       this.ctx.lineTo(GAME_WIDTH, i);
       this.ctx.stroke();
     }
+  }
+
+  private renderPlayer(player: Player) {
+    this.ctx.fillStyle = '#1a1a2e';
+    this.ctx.fillRect(player.x, player.y, player.width, player.height);
+    this.ctx.strokeStyle = 'white';
+    this.ctx.strokeRect(player.x, player.y, player.width, player.height);
   }
 }
