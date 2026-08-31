@@ -2,6 +2,7 @@ import { GAME_HEIGHT, GAME_WIDTH, GRID_SIZE } from '../core/constants.ts';
 import type { Player } from '../entities/Player.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 import type { GameState } from '../core/Game.ts';
+import type { Enemy } from '../entities/Enemy.ts';
 
 export class RenderSystem {
   private readonly ctx: CanvasRenderingContext2D;
@@ -15,7 +16,7 @@ export class RenderSystem {
     this.ctx = this.canvas.getContext('2d')!;
   }
 
-  render(state: GameState, player: Player) {
+  render(state: GameState, player: Player, enemies: Enemy[]) {
     if (state === 'menu') {
       this.renderMenuBackground();
     } else {
@@ -23,6 +24,7 @@ export class RenderSystem {
       this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
       this.renderGrid();
+      this.renderEnemies(enemies);
       this.renderPlayer(player);
     }
   }
@@ -59,5 +61,12 @@ export class RenderSystem {
   private renderMenuBackground() {
     this.ctx.fillStyle = '#0f3460';
     this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  }
+
+  private renderEnemies(enemies: Enemy[]) {
+    enemies.forEach((enemy) => {
+      this.ctx.fillStyle = '#ff0000';
+      this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    });
   }
 }

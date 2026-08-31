@@ -5,6 +5,7 @@ import type { Keys } from '../systems/input/Keys.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 import { AudioManager } from '../managers/AudioManager.ts';
 import { UIManager } from '../managers/UIManager.ts';
+import { EnemyManager } from '../managers/EnemyManager.ts';
 
 export type GameState = 'menu' | 'playing' | 'paused';
 
@@ -18,6 +19,7 @@ export class Game {
   private readonly audioManager: AudioManager;
   private readonly uiManager: UIManager;
   private readonly renderSystem: RenderSystem;
+  private enemyManager: EnemyManager;
   private state: GameState;
 
   constructor() {
@@ -27,6 +29,8 @@ export class Game {
     this.audioManager = new AudioManager();
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.uiManager = new UIManager(this);
+    this.enemyManager = new EnemyManager();
+
     this.player = new Player();
     this.keys = {};
     this.lastTime = 0;
@@ -73,7 +77,11 @@ export class Game {
     }
 
     this.update(cappedDeltaTime);
-    this.renderSystem.render(this.state, this.player);
+    this.renderSystem.render(
+      this.state,
+      this.player,
+      this.enemyManager.getActiveEnemies(),
+    );
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 
@@ -108,6 +116,7 @@ export class Game {
     this.uiManager.showTimer();
 
     this.player.reset();
+    this.enemyManager.spawn(200, 200);
 
     this.lastTime = performance.now();
   }
