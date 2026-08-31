@@ -5,7 +5,7 @@ import type { Keys } from '../systems/input/Keys.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 import { AudioManager } from '../managers/AudioManager.ts';
 
-type GameState = 'menu' | 'playing' | 'paused';
+export type GameState = 'menu' | 'playing' | 'paused';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -16,11 +16,9 @@ export class Game {
   private readonly audioManager: AudioManager;
   private readonly renderSystem: RenderSystem;
   private state: GameState;
-  private ctx: CanvasRenderingContext2D;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext('2d')!;
 
     this.imageManager = new ImageManager();
     this.audioManager = new AudioManager();
@@ -57,16 +55,6 @@ export class Game {
 
     this.player.update(deltaTime, this.keys);
   }
-
-  private render() {
-    if (this.state === 'menu') {
-      this.ctx.fillStyle = '#0f3460';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } else {
-      this.renderSystem.render(this.player);
-    }
-  }
-
   private gameLoop(time: DOMHighResTimeStamp) {
     if (this.lastTime === 0) {
       this.lastTime = time;
@@ -77,7 +65,7 @@ export class Game {
     this.lastTime = time;
 
     this.update(cappedDeltaTime);
-    this.render();
+    this.renderSystem.render(this.state, this.player);
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 
