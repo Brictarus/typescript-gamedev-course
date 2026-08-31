@@ -1,4 +1,5 @@
 import type { EnemyData } from '../data/enemyData.ts';
+import type { Player } from './Player.ts';
 
 export class Enemy {
   private readonly data: EnemyData;
@@ -32,5 +33,19 @@ export class Enemy {
     this.x = x;
     this.y = y;
     this.health = this.data.health;
+  }
+
+  update(deltaTime: number, player: Player) {
+    const dx = player.x - this.x;
+    const dy = player.y - this.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    if (length > 0) {
+      const normalizedDx = dx / length;
+      const normalizedDy = dy / length;
+
+      this.x += normalizedDx * this.speed * deltaTime;
+      this.y += normalizedDy * this.speed * deltaTime;
+    }
   }
 }
