@@ -2,18 +2,22 @@ import { GAME_HEIGHT, GAME_WIDTH } from './constants.ts';
 import { RenderSystem } from '../systems/RenderSystem.ts';
 import { Player } from '../entities/Player.ts';
 import type { Keys } from '../systems/input/Keys.ts';
+import { ImageManager } from '../managers/ImageManager.ts';
 
 export class Game {
   private canvas: HTMLCanvasElement;
-  private renderSystem: RenderSystem;
   private player: Player;
   private keys: Keys;
   private lastTime: DOMHighResTimeStamp = 0;
+  private imageManager: ImageManager;
+  private renderSystem: RenderSystem;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 
-    this.renderSystem = new RenderSystem(this.canvas);
+    this.imageManager = new ImageManager();
+    this.imageManager.loadAll();
+    this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.player = new Player();
     this.keys = {};
 
