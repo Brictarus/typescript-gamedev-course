@@ -1,5 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../core/constants.ts';
 import type { Keys } from '../systems/input/Keys.ts';
+import { playerData } from '../data/playerData.ts';
 
 export class Player {
   x: number;
@@ -10,18 +11,20 @@ export class Player {
   private speedMultiplier: number;
 
   constructor() {
-    this.width = 64;
-    this.height = 64;
+    this.width = playerData.width;
+    this.height = playerData.height;
 
     this.x = (GAME_WIDTH - this.width) / 2;
     this.y = (GAME_HEIGHT - this.height) / 2;
+    this.speed = playerData.speed;
+
     this.speedMultiplier = 1;
-    this.speed = 300;
   }
 
   reset() {
     this.x = (GAME_WIDTH - this.width) / 2;
     this.y = (GAME_HEIGHT - this.height) / 2;
+    this.speed = playerData.speed;
     this.speedMultiplier = 1;
   }
 
