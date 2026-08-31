@@ -3,6 +3,7 @@ import { RenderSystem } from '../systems/RenderSystem.ts';
 import { Player } from '../entities/Player.ts';
 import type { Keys } from '../systems/input/Keys.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
+import { AudioManager } from '../managers/AudioManager.ts';
 
 type GameState = 'menu' | 'playing' | 'paused';
 
@@ -11,8 +12,9 @@ export class Game {
   private player: Player;
   private keys: Keys;
   private lastTime: DOMHighResTimeStamp;
-  private imageManager: ImageManager;
-  private renderSystem: RenderSystem;
+  private readonly imageManager: ImageManager;
+  private readonly audioManager: AudioManager;
+  private readonly renderSystem: RenderSystem;
   private state: GameState;
   private ctx: CanvasRenderingContext2D;
 
@@ -21,6 +23,7 @@ export class Game {
     this.ctx = this.canvas.getContext('2d')!;
 
     this.imageManager = new ImageManager();
+    this.audioManager = new AudioManager();
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.player = new Player();
     this.keys = {};
@@ -33,7 +36,8 @@ export class Game {
   private async init() {
     await Promise.all([
       this.imageManager.loadAll(),
-      new Promise((resolve) => setTimeout(resolve, 5_000)),
+      this.audioManager.loadAll(),
+      new Promise((resolve) => setTimeout(resolve, 1_000)),
     ]);
 
     document.getElementById('loadingScreen')?.classList.remove('active');
@@ -101,15 +105,23 @@ export class Game {
   }
 
   private setupUI() {
-    document
-      .getElementById('playBtn')
-      ?.addEventListener('click', () => this.startGame());
-    document
-      .getElementById('resumeBtn')
-      ?.addEventListener('click', () => this.resume());
-    document
-      .getElementById('quitBtn')
-      ?.addEventListener('click', () => this.returnToMenu());
+    document.getElementById('playBtn')?.addEventListener('click', () => {
+      this.audioManager.play('button_click');
+      this.startGame();
+    });
+    document.getElementById('resumeBtn')?.addEventListener('click', () => {
+      this.audioManager.play('button_click');
+      this.resume();
+    });
+    document.getElementById('quitBtn')?.addEventListener('click', () => {
+      this.audioManager.play('button_click');
+      this.returnToMenu();
+    });
+    document.querySelectorAll('button').forEach((button) => {
+      button.addEventListener('mouseenter', () =>
+        this.audioManager.play('button_hover'),
+      );
+    });
   }
 
   private hideAllPanels() {
@@ -128,11 +140,13 @@ export class Game {
   }
 
   private pause() {
+    this.audioManager.play('pause');
     this.state = 'paused';
     document.getElementById('pauseMenu')?.classList.add('active');
   }
 
   private resume() {
+    this.audioManager.play('unpause');
     this.state = 'playing';
     document.getElementById('pauseMenu')?.classList.remove('active');
   }
