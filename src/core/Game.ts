@@ -15,7 +15,7 @@ export class Game {
   private lastTime: DOMHighResTimeStamp;
   private time: number;
   private readonly imageManager: ImageManager;
-  readonly audioManager: AudioManager;
+  private readonly audioManager: AudioManager;
   private readonly uiManager: UIManager;
   private readonly renderSystem: RenderSystem;
   private state: GameState;
@@ -37,10 +37,13 @@ export class Game {
   }
 
   private async init() {
+    const DEBUG_LOAD_DELAY = 1_000;
     await Promise.all([
       this.imageManager.loadAll(),
       this.audioManager.loadAll(),
-      new Promise((resolve) => setTimeout(resolve, 1_000)),
+      new Promise((resolve) => {
+        return setTimeout(resolve, DEBUG_LOAD_DELAY);
+      }),
     ]);
 
     this.uiManager.showPanel('mainMenu');
@@ -60,10 +63,6 @@ export class Game {
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
-    if (this.lastTime === 0) {
-      this.lastTime = time;
-    }
-
     const deltaTime = (time - this.lastTime) / 1_000;
     const cappedDeltaTime = Math.min(deltaTime, 0.1);
     this.lastTime = time;
@@ -102,7 +101,7 @@ export class Game {
   }
 
   startGame() {
-    this.audioManager.play('button_click');
+    this.playSound('button_click');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
     this.time = 0;
@@ -114,22 +113,26 @@ export class Game {
   }
 
   pause() {
-    this.audioManager.play('pause');
+    this.playSound('pause');
     this.state = 'paused';
     this.uiManager.showPanel('pauseMenu');
   }
 
   resume() {
-    this.audioManager.play('unpause');
+    this.playSound('unpause');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
   }
 
   returnToMenu() {
-    this.audioManager.play('button_click');
+    this.playSound('button_click');
     this.state = 'menu';
     this.uiManager.hideTimer();
     this.uiManager.showPanel('mainMenu');
+  }
+
+  playSound(name: string) {
+    this.audioManager.play(name);
   }
 
   private resizeCanvas() {

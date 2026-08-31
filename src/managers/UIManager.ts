@@ -28,7 +28,7 @@ export class UIManager {
     });
     document.querySelectorAll('button').forEach((button) => {
       button.addEventListener('mouseenter', () =>
-        this.game.audioManager.play('button_hover'),
+        this.game.playSound('button_hover'),
       );
     });
   }
