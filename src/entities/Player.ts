@@ -10,10 +10,11 @@ export class Player {
   private speedMultiplier: number;
 
   constructor() {
-    this.x = GAME_WIDTH / 2;
-    this.y = GAME_HEIGHT / 2;
     this.width = 64;
     this.height = 64;
+
+    this.x = (GAME_WIDTH - this.width) / 2;
+    this.y = (GAME_HEIGHT - this.height) / 2;
     this.speed = 100;
     this.speedMultiplier = 1;
   }
