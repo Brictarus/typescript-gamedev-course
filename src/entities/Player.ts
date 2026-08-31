@@ -29,10 +29,12 @@ export class Player {
       const length = Math.sqrt(dx * dx + dy * dy);
       dx /= length;
       dy /= length;
-    }
-    if (dx || dy) {
+
       this.x += dx * this.speed;
       this.y += dy * this.speed;
     }
+
+    this.x = Math.max(0, Math.min(GAME_WIDTH - this.width, this.x));
+    this.y = Math.max(0, Math.min(GAME_HEIGHT - this.height, this.y));
   }
 }
