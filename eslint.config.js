@@ -11,4 +11,19 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   tseslint.configs.recommended,
+  {
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          vars: 'all',
+          args: 'after-used',
+          caughtErrors: 'all',
+          ignoreRestSiblings: false,
+          ignoreUsingDeclarations: false,
+          reportUsedIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
 ]);

@@ -1,10 +1,14 @@
 import { GAME_HEIGHT, GAME_WIDTH } from './constants.ts';
+import { RenderSystem } from '../systems/RenderSystem.ts';
 
 export class Game {
   private canvas: HTMLCanvasElement;
+  private renderSystem: RenderSystem;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+
+    this.renderSystem = new RenderSystem(this.canvas);
 
     this.init();
   }
@@ -12,6 +16,7 @@ export class Game {
   private init() {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
+    window.requestAnimationFrame((time) => this.gameLoop(time));
   }
 
   private resizeCanvas() {
@@ -34,5 +39,10 @@ export class Game {
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     this.canvas.style.margin = `${margin}px`;
+  }
+
+  private gameLoop(_time: DOMHighResTimeStamp) {
+    this.renderSystem.render();
+    window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 }
