@@ -1,14 +1,17 @@
 import { GAME_HEIGHT, GAME_WIDTH } from './constants.ts';
 import { RenderSystem } from '../systems/RenderSystem.ts';
+import { Player } from '../entities/Player.ts';
 
 export class Game {
   private canvas: HTMLCanvasElement;
   private renderSystem: RenderSystem;
+  private player: Player;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 
     this.renderSystem = new RenderSystem(this.canvas);
+    this.player = new Player();
 
     this.init();
   }
@@ -42,7 +45,7 @@ export class Game {
   }
 
   private gameLoop(_time: DOMHighResTimeStamp) {
-    this.renderSystem.render();
+    this.renderSystem.render(this.player);
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 }
