@@ -117,6 +117,7 @@ export class Game {
     this.uiManager.showTimer();
 
     this.player.reset();
+    this.enemyManager.reset();
     this.enemyManager.spawn(200, 200);
 
     this.lastTime = performance.now();
