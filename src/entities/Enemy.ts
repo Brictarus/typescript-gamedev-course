@@ -6,13 +6,14 @@ import {
   GAME_WIDTH,
 } from '../core/constants.ts';
 import type { PoolableObject } from '../utils/ObjectPooler.ts';
+import type { Behaviour } from './behaviours/Behaviour.ts';
 
 export type EnemyUpdateContext = {
   player: Player;
 };
 
 export class Enemy implements PoolableObject<EnemyUpdateContext> {
-  private readonly data: EnemyData;
+  readonly data: EnemyData;
 
   x: number;
   y: number;
@@ -23,12 +24,14 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   private damage: number;
   private collisionRadius: number;
 
-  private speed: number;
+  speed: number;
 
   private active: boolean;
+  private behaviour: Behaviour;
 
-  constructor(data: EnemyData) {
+  constructor(data: EnemyData, behaviour: Behaviour) {
     this.data = data;
+    this.behaviour = behaviour;
 
     this.x = 0;
     this.y = 0;
@@ -61,6 +64,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   reset() {
     this.active = false;
     this.health = this.data.health;
+    this.behaviour.reset?.();
   }
 
   update(deltaTime: number, { player }: EnemyUpdateContext) {
@@ -76,16 +80,6 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
       return;
     }
 
-    const dx = player.x - this.x;
-    const dy = player.y - this.y;
-    const length = Math.sqrt(dx * dx + dy * dy);
-
-    if (length > 0) {
-      const normalizedDx = dx / length;
-      const normalizedDy = dy / length;
-
-      this.x += normalizedDx * this.speed * deltaTime;
-      this.y += normalizedDy * this.speed * deltaTime;
-    }
+    this.behaviour.update(deltaTime, this, player);
   }
 }
