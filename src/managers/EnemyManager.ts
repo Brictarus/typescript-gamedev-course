@@ -2,6 +2,7 @@ import { Enemy, type EnemyUpdateContext } from '../entities/Enemy.ts';
 import { enemyData } from '../data/enemyData.ts';
 import type { Player } from '../entities/Player.ts';
 import { ObjectPooler } from '../utils/ObjectPooler.ts';
+import { BehaviourFactory } from '../entities/behaviours/BehaviourFactory.ts';
 
 export class EnemyManager {
   private readonly pool: ObjectPooler<Enemy, EnemyUpdateContext>;
@@ -9,10 +10,12 @@ export class EnemyManager {
   constructor() {
     const ENEMY_POOL_SIZE = 10;
 
-    this.pool = new ObjectPooler<Enemy, EnemyUpdateContext>(
-      () => new Enemy(enemyData.drifter),
-      ENEMY_POOL_SIZE,
-    );
+    this.pool = new ObjectPooler<Enemy, EnemyUpdateContext>(() => {
+      const behaviour = BehaviourFactory.create(
+        enemyData.drifter.behaviourType,
+      );
+      return new Enemy(enemyData.drifter, behaviour);
+    }, ENEMY_POOL_SIZE);
   }
 
   spawn(x: number, y: number): Enemy {
