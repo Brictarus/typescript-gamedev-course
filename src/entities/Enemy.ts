@@ -13,7 +13,7 @@ export type EnemyUpdateContext = {
 };
 
 export class Enemy implements PoolableObject<EnemyUpdateContext> {
-  private readonly data: EnemyData;
+  readonly data: EnemyData;
 
   x: number;
   y: number;
@@ -64,6 +64,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   reset() {
     this.active = false;
     this.health = this.data.health;
+    this.behaviour.reset?.();
   }
 
   update(deltaTime: number, { player }: EnemyUpdateContext) {

@@ -65,7 +65,7 @@ export class RenderSystem {
 
   private renderEnemies(enemies: Enemy[]) {
     enemies.forEach((enemy) => {
-      this.ctx.fillStyle = '#ff0000';
+      this.ctx.fillStyle = enemy.data.color;
       this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
     });
   }

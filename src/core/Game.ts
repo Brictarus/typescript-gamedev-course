@@ -118,7 +118,12 @@ export class Game {
 
     this.player.reset();
     this.enemyManager.reset();
-    this.enemyManager.spawn(200, 200);
+    this.enemyManager.spawn('drifter', 300, 600);
+    this.enemyManager.spawn('drifter', 500, 100);
+    this.enemyManager.spawn('drifter', 700, 300);
+    this.enemyManager.spawn('seeker', 900, 50);
+    this.enemyManager.spawn('seeker', 100, 500);
+    this.enemyManager.spawn('seeker', 800, 100);
 
     this.lastTime = performance.now();
   }
