@@ -128,7 +128,7 @@ export class Game {
     this.state = 'playing';
     this.uiManager.hideAllPanels();
     this.time = 0;
-    this.uiManager.showTimer();
+    this.uiManager.showHud();
 
     this.player.reset();
     this.enemyManager.reset();
@@ -152,7 +152,7 @@ export class Game {
   returnToMenu() {
     this.events.emit('sound', 'button_click');
     this.state = 'menu';
-    this.uiManager.hideTimer();
+    this.uiManager.hideHud();
     this.uiManager.showPanel('mainMenu');
   }
   private resizeCanvas() {

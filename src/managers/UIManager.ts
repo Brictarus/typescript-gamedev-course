@@ -3,18 +3,25 @@ import type { GameEventEmitter } from '../core/Events.ts';
 export class UIManager {
   private readonly events: GameEventEmitter;
 
+  private hudEl: HTMLElement | null;
   private timerEl: HTMLElement | null;
+  private healthBarFillEl: HTMLElement | null;
+
   private mainMenuEl: HTMLElement | null;
   private pauseMenuEl: HTMLElement | null;
-
   private loadingScreenEl: HTMLElement | null;
+
   private playBtnEl: HTMLElement | null;
   private resumeBtnEl: HTMLElement | null;
   private quitBtnEl: HTMLElement | null;
 
   constructor(events: GameEventEmitter) {
     this.events = events;
+
+    this.hudEl = document.getElementById('hud');
     this.timerEl = document.getElementById('timer');
+    this.healthBarFillEl = document.getElementById('healthBarFill');
+
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
     this.loadingScreenEl = document.getElementById('loadingScreen');
@@ -55,15 +62,15 @@ export class UIManager {
     document.getElementById(panelId)?.classList.add('active');
   }
 
-  showTimer() {
-    if (this.timerEl) {
-      this.timerEl.style.display = 'block';
+  showHud() {
+    if (this.hudEl) {
+      this.hudEl.style.display = 'block';
     }
   }
 
-  hideTimer() {
-    if (this.timerEl) {
-      this.timerEl.style.display = 'none';
+  hideHud() {
+    if (this.hudEl) {
+      this.hudEl.style.display = 'none';
     }
   }
 
