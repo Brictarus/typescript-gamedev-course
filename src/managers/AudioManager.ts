@@ -1,3 +1,5 @@
+import { audioData } from '../data/audioData.ts';
+
 type SoundData = {
   audio: HTMLAudioElement;
   loaded: boolean;
@@ -36,11 +38,10 @@ export class AudioManager {
   }
 
   async loadAll(): Promise<void> {
-    await Promise.all([
-      this.load('pause', document.baseURI + '/audio/pause.mp3'),
-      this.load('unpause', document.baseURI + '/audio/unpause.mp3'),
-      this.load('button_hover', document.baseURI + '/audio/button_hover.mp3'),
-      this.load('button_click', document.baseURI + '/audio/button_click.mp3'),
-    ]);
+    await Promise.all(
+      audioData.map(({ name, path }) =>
+        this.load(name, document.baseURI + path),
+      ),
+    );
   }
 }
