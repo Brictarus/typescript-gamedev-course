@@ -82,4 +82,10 @@ export class UIManager {
 
     this.timerEl.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
   }
+
+  updateHealth(health: number, maxHealth: number) {
+    if (!this.healthBarFillEl) return;
+    const percentage = Math.max(0, health / maxHealth);
+    this.healthBarFillEl.style.setProperty('--health-pct', `${percentage}`);
+  }
 }

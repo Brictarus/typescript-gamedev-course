@@ -32,6 +32,7 @@ export class Player {
     this.y = (GAME_HEIGHT - this.height) / 2;
     this.speed = playerData.speed;
     this.speedMultiplier = 1;
+    this.health = this.maxHealth;
   }
 
   update(deltaTime: number, keys: Keys) {

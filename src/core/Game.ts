@@ -73,9 +73,10 @@ export class Game {
     this.events.on('game:resume', () => this.resume());
     this.events.on('game:returnToMenu', () => this.returnToMenu());
 
-    this.events.on('player:damaged', () =>
-      this.events.emit('sound', 'player_hurt'),
-    );
+    this.events.on('player:damaged', ({ health, maxHealth }) => {
+      this.events.emit('sound', 'player_hurt');
+      this.uiManager.updateHealth(health, maxHealth);
+    });
 
     this.uiManager.showPanel('mainMenu');
 
@@ -146,6 +147,8 @@ export class Game {
     this.player.reset();
     this.enemyManager.reset();
     this.enemySpawner.reset();
+
+    this.uiManager.updateHealth(this.player.health, this.player.maxHealth);
 
     this.lastTime = performance.now();
   }
