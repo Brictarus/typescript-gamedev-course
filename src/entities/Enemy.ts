@@ -22,12 +22,12 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   facingLeft: boolean;
 
   private health: number;
-  private damage: number;
-  private collisionRadius: number;
+  readonly damage: number;
+  readonly collisionRadius: number;
 
   speed: number;
 
-  private active: boolean;
+  active: boolean;
   private behaviour: Behaviour;
 
   constructor(data: EnemyData, behaviour: Behaviour) {
@@ -48,10 +48,6 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.facingLeft = false;
   }
 
-  isActive() {
-    return this.active;
-  }
-
   spawn(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -59,7 +55,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.active = true;
 
     console.log(
-      `Enemy spawned! Health = ${this.health}, Damage = ${this.damage}, CollisionRadius = ${this.collisionRadius}`,
+      `Enemy spawned! Health = ${this.health}, Damage = ${this.damage}`,
     );
   }
 

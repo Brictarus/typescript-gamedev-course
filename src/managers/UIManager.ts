@@ -3,18 +3,26 @@ import type { GameEventEmitter } from '../core/Events.ts';
 export class UIManager {
   private readonly events: GameEventEmitter;
 
-  private timerEl: HTMLElement | null;
-  private mainMenuEl: HTMLElement | null;
-  private pauseMenuEl: HTMLElement | null;
+  private readonly hudEl: HTMLElement | null;
+  private readonly timerEl: HTMLElement | null;
+  private readonly healthBarFillEl: HTMLElement | null;
 
-  private loadingScreenEl: HTMLElement | null;
-  private playBtnEl: HTMLElement | null;
-  private resumeBtnEl: HTMLElement | null;
-  private quitBtnEl: HTMLElement | null;
+  private readonly mainMenuEl: HTMLElement | null;
+  private readonly pauseMenuEl: HTMLElement | null;
+  private readonly loadingScreenEl: HTMLElement | null;
+
+  private readonly playBtnEl: HTMLElement | null;
+  private readonly resumeBtnEl: HTMLElement | null;
+  private readonly quitBtnEl: HTMLElement | null;
 
   constructor(events: GameEventEmitter) {
     this.events = events;
+
+    this.hudEl = document.getElementById('hud');
     this.timerEl = document.getElementById('timer');
+    this.healthBarFillEl = document.getElementById('healthBarFill');
+    console.log('healthBarFillEl', this.healthBarFillEl);
+
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
     this.loadingScreenEl = document.getElementById('loadingScreen');
@@ -55,15 +63,15 @@ export class UIManager {
     document.getElementById(panelId)?.classList.add('active');
   }
 
-  showTimer() {
-    if (this.timerEl) {
-      this.timerEl.style.display = 'block';
+  showHud() {
+    if (this.hudEl) {
+      this.hudEl.style.display = 'block';
     }
   }
 
-  hideTimer() {
-    if (this.timerEl) {
-      this.timerEl.style.display = 'none';
+  hideHud() {
+    if (this.hudEl) {
+      this.hudEl.style.display = 'none';
     }
   }
 
@@ -73,5 +81,11 @@ export class UIManager {
     const seconds = Math.floor(time % 60);
 
     this.timerEl.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  updateHealth(health: number, maxHealth: number) {
+    if (!this.healthBarFillEl) return;
+    const percentage = Math.max(0, health / maxHealth);
+    this.healthBarFillEl.style.setProperty('--health-pct', `${percentage}`);
   }
 }

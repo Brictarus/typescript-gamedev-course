@@ -9,6 +9,9 @@ export class Player {
   height: number;
   private speed: number;
   private speedMultiplier: number;
+  readonly collisionRadius: number;
+  maxHealth: number;
+  health: number;
 
   constructor() {
     this.width = playerData.width;
@@ -16,7 +19,10 @@ export class Player {
 
     this.x = (GAME_WIDTH - this.width) / 2;
     this.y = (GAME_HEIGHT - this.height) / 2;
+    this.collisionRadius = playerData.collisionRadius;
     this.speed = playerData.speed;
+    this.maxHealth = playerData.maxHealth;
+    this.health = this.maxHealth;
 
     this.speedMultiplier = 1;
   }
@@ -26,6 +32,7 @@ export class Player {
     this.y = (GAME_HEIGHT - this.height) / 2;
     this.speed = playerData.speed;
     this.speedMultiplier = 1;
+    this.health = this.maxHealth;
   }
 
   update(deltaTime: number, keys: Keys) {
@@ -48,5 +55,10 @@ export class Player {
 
     this.x = Math.max(0, Math.min(GAME_WIDTH - this.width, this.x));
     this.y = Math.max(0, Math.min(GAME_HEIGHT - this.height, this.y));
+  }
+
+  takeDamage(amount: number) {
+    this.health = Math.max(0, this.health - amount);
+    return true;
   }
 }

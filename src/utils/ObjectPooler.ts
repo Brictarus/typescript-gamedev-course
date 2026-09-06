@@ -1,5 +1,5 @@
 export type PoolableObject<U> = {
-  isActive: () => boolean;
+  active: boolean;
   update: (dt: number, context: U) => void;
   reset: () => void;
 };
@@ -40,7 +40,7 @@ export class ObjectPooler<T extends PoolableObject<U>, U> {
     for (let i = this.#active.length - 1; i >= 0; i--) {
       const poolableObject = this.#active[i];
       poolableObject.update(deltaTime, context);
-      if (!poolableObject.isActive()) {
+      if (!poolableObject.active) {
         this.release(poolableObject);
       }
     }

@@ -9,6 +9,9 @@ import { EnemyManager } from '../managers/EnemyManager.ts';
 import { EnemySpawner } from '../managers/EnemySpawner.ts';
 import { EventEmitter } from './EventEmitter.ts';
 import type { Events, GameEventEmitter } from './Events.ts';
+import { CollisionManager } from '../managers/CollisionManager.ts';
+import { CollisionSystem } from '../systems/CollisionSystem.ts';
+import type { Enemy } from '../entities/Enemy.ts';
 
 export type GameState = 'menu' | 'playing' | 'paused';
 
@@ -25,6 +28,7 @@ export class Game {
   private readonly uiManager: UIManager;
   private readonly renderSystem: RenderSystem;
   private readonly enemyManager: EnemyManager;
+  private readonly collisionManager: CollisionManager;
   private readonly enemySpawner: EnemySpawner;
   private state: GameState;
 
@@ -38,6 +42,10 @@ export class Game {
     this.uiManager = new UIManager(this.events);
     this.enemyManager = new EnemyManager();
     this.enemySpawner = new EnemySpawner(this.enemyManager);
+    this.collisionManager = new CollisionManager(
+      new CollisionSystem(),
+      this.events,
+    );
 
     this.player = new Player();
     this.keys = {};
@@ -59,9 +67,16 @@ export class Game {
     ]);
 
     this.events.on('sound', (name) => this.audioManager.play(name));
+
     this.events.on('game:start', () => this.startGame());
+    this.events.on('game:pause', () => this.pause());
     this.events.on('game:resume', () => this.resume());
     this.events.on('game:returnToMenu', () => this.returnToMenu());
+
+    this.events.on('player:damaged', ({ health, maxHealth }) => {
+      this.events.emit('sound', 'player_hurt');
+      this.uiManager.updateHealth(health, maxHealth);
+    });
 
     this.uiManager.showPanel('mainMenu');
 
@@ -73,12 +88,13 @@ export class Game {
     window.requestAnimationFrame((time) => this.gameLoop(time));
   }
 
-  private update(deltaTime: number) {
+  private update(deltaTime: number, activeEnemies: Enemy[]) {
     if (this.state !== 'playing') return;
 
     this.player.update(deltaTime, this.keys);
     this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
+    this.collisionManager.update(this.player, activeEnemies);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -91,12 +107,10 @@ export class Game {
       this.uiManager.updateTimer(this.time);
     }
 
-    this.update(cappedDeltaTime);
-    this.renderSystem.render(
-      this.state,
-      this.player,
-      this.enemyManager.getActiveEnemies(),
-    );
+    const activeEnemies = this.enemyManager.getActiveEnemies();
+
+    this.update(cappedDeltaTime, activeEnemies);
+    this.renderSystem.render(this.state, this.player, activeEnemies);
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 
@@ -106,9 +120,9 @@ export class Game {
 
       if (e.key === 'Escape') {
         if (this.state === 'playing') {
-          this.pause();
+          this.events.emit('game:pause');
         } else if (this.state === 'paused') {
-          this.resume();
+          this.events.emit('game:resume');
         }
       }
     });
@@ -128,33 +142,36 @@ export class Game {
     this.state = 'playing';
     this.uiManager.hideAllPanels();
     this.time = 0;
-    this.uiManager.showTimer();
+    this.uiManager.showHud();
 
     this.player.reset();
     this.enemyManager.reset();
     this.enemySpawner.reset();
 
+    this.uiManager.updateHealth(this.player.health, this.player.maxHealth);
+
     this.lastTime = performance.now();
   }
 
-  pause() {
+  private pause() {
     this.events.emit('sound', 'pause');
     this.state = 'paused';
     this.uiManager.showPanel('pauseMenu');
   }
 
-  resume() {
+  private resume() {
     this.events.emit('sound', 'unpause');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
   }
 
-  returnToMenu() {
+  private returnToMenu() {
     this.events.emit('sound', 'button_click');
     this.state = 'menu';
-    this.uiManager.hideTimer();
+    this.uiManager.hideHud();
     this.uiManager.showPanel('mainMenu');
   }
+
   private resizeCanvas() {
     const ratio = GAME_WIDTH / GAME_HEIGHT;
     let width, height;
