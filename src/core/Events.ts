@@ -4,6 +4,7 @@ import type { Enemy } from '../entities/Enemy.ts';
 export type Events = {
   sound: string;
   'game:start': undefined;
+  'game:pause': undefined;
   'game:resume': undefined;
   'game:returnToMenu': undefined;
   'player:damaged': { health: number; maxHealth: number };

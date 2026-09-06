@@ -67,9 +67,15 @@ export class Game {
     ]);
 
     this.events.on('sound', (name) => this.audioManager.play(name));
+
     this.events.on('game:start', () => this.startGame());
+    this.events.on('game:pause', () => this.pause());
     this.events.on('game:resume', () => this.resume());
     this.events.on('game:returnToMenu', () => this.returnToMenu());
+
+    this.events.on('player:damaged', () =>
+      this.events.emit('sound', 'player_hurt'),
+    );
 
     this.uiManager.showPanel('mainMenu');
 
@@ -113,9 +119,9 @@ export class Game {
 
       if (e.key === 'Escape') {
         if (this.state === 'playing') {
-          this.pause();
+          this.events.emit('game:pause');
         } else if (this.state === 'paused') {
-          this.resume();
+          this.events.emit('game:resume');
         }
       }
     });
@@ -144,24 +150,25 @@ export class Game {
     this.lastTime = performance.now();
   }
 
-  pause() {
+  private pause() {
     this.events.emit('sound', 'pause');
     this.state = 'paused';
     this.uiManager.showPanel('pauseMenu');
   }
 
-  resume() {
+  private resume() {
     this.events.emit('sound', 'unpause');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
   }
 
-  returnToMenu() {
+  private returnToMenu() {
     this.events.emit('sound', 'button_click');
     this.state = 'menu';
     this.uiManager.hideHud();
     this.uiManager.showPanel('mainMenu');
   }
+
   private resizeCanvas() {
     const ratio = GAME_WIDTH / GAME_HEIGHT;
     let width, height;

@@ -9,7 +9,7 @@ type EventHandlerMap<Events extends Record<EventType, unknown>> = Map<
 export interface Emitter<Events extends Record<EventType, unknown>> {
   on<Key extends keyof Events>(type: Key, listener: Handler<Events[Key]>): void;
 
-  emit<Key extends keyof Events>(type: Key, event: Events[Key]): void;
+  emit<Key extends keyof Events>(type: Key, payload: Events[Key]): void;
   emit<Key extends keyof Events>(
     type: undefined extends Events[Key] ? Key : never,
   ): void;
