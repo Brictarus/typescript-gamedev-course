@@ -36,7 +36,7 @@ export class EnemySpawner {
     this.spawnTimer += deltaTime;
     if (this.spawnTimer >= this.spawnInterval) {
       this.spawnWave();
-      this.spawnTimer = 0;
+      this.spawnTimer -= this.spawnInterval;
     }
   }
 
