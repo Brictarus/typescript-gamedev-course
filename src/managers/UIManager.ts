@@ -1,18 +1,19 @@
-import type { Game } from '../core/Game.ts';
+import type { GameEventEmitter } from '../core/Events.ts';
 
 export class UIManager {
-  private game: Game;
+  private readonly events: GameEventEmitter;
+
   private timerEl: HTMLElement | null;
   private mainMenuEl: HTMLElement | null;
   private pauseMenuEl: HTMLElement | null;
-  private loadingScreenEl: HTMLElement | null;
 
+  private loadingScreenEl: HTMLElement | null;
   private playBtnEl: HTMLElement | null;
   private resumeBtnEl: HTMLElement | null;
   private quitBtnEl: HTMLElement | null;
 
-  constructor(game: Game) {
-    this.game = game;
+  constructor(events: GameEventEmitter) {
+    this.events = events;
     this.timerEl = document.getElementById('timer');
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
@@ -27,17 +28,17 @@ export class UIManager {
 
   private setupEventListeners() {
     this.playBtnEl?.addEventListener('click', () => {
-      this.game.startGame();
+      this.events.emit('game:start', undefined);
     });
     this.resumeBtnEl?.addEventListener('click', () => {
-      this.game.resume();
+      this.events.emit('game:resume', undefined);
     });
     this.quitBtnEl?.addEventListener('click', () => {
-      this.game.returnToMenu();
+      this.events.emit('game:returnToMenu', undefined);
     });
     [this.playBtnEl, this.resumeBtnEl, this.quitBtnEl].forEach((button) => {
       button?.addEventListener('mouseenter', () =>
-        this.game.playSound('button_hover'),
+        this.events.emit('sound', 'button_hover'),
       );
     });
   }
