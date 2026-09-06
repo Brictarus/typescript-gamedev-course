@@ -3,17 +3,17 @@ import type { GameEventEmitter } from '../core/Events.ts';
 export class UIManager {
   private readonly events: GameEventEmitter;
 
-  private hudEl: HTMLElement | null;
-  private timerEl: HTMLElement | null;
-  private healthBarFillEl: HTMLElement | null;
+  private readonly hudEl: HTMLElement | null;
+  private readonly timerEl: HTMLElement | null;
+  private readonly healthBarFillEl: HTMLElement | null;
 
-  private mainMenuEl: HTMLElement | null;
-  private pauseMenuEl: HTMLElement | null;
-  private loadingScreenEl: HTMLElement | null;
+  private readonly mainMenuEl: HTMLElement | null;
+  private readonly pauseMenuEl: HTMLElement | null;
+  private readonly loadingScreenEl: HTMLElement | null;
 
-  private playBtnEl: HTMLElement | null;
-  private resumeBtnEl: HTMLElement | null;
-  private quitBtnEl: HTMLElement | null;
+  private readonly playBtnEl: HTMLElement | null;
+  private readonly resumeBtnEl: HTMLElement | null;
+  private readonly quitBtnEl: HTMLElement | null;
 
   constructor(events: GameEventEmitter) {
     this.events = events;
@@ -21,6 +21,7 @@ export class UIManager {
     this.hudEl = document.getElementById('hud');
     this.timerEl = document.getElementById('timer');
     this.healthBarFillEl = document.getElementById('healthBarFill');
+    console.log('healthBarFillEl', this.healthBarFillEl);
 
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
