@@ -65,8 +65,20 @@ export class RenderSystem {
 
   private renderEnemies(enemies: Enemy[]) {
     enemies.forEach((enemy) => {
-      this.ctx.fillStyle = enemy.data.color;
-      this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+      const enemyImage = this.imageManager.get(enemy.data.image);
+
+      if (enemyImage) {
+        this.ctx.drawImage(
+          enemyImage,
+          enemy.x,
+          enemy.y,
+          enemy.width,
+          enemy.height,
+        );
+      } else {
+        this.ctx.fillStyle = enemy.data.color;
+        this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+      }
     });
   }
 }

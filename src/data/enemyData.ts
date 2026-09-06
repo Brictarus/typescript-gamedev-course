@@ -9,6 +9,7 @@ export type EnemyData = {
   collisionRadius: number;
   behaviourType: BehaviourType;
   color: string;
+  image: string;
 };
 
 export const enemyData: { [type: string]: EnemyData } = {
@@ -21,15 +22,17 @@ export const enemyData: { [type: string]: EnemyData } = {
     collisionRadius: 24,
     behaviourType: 'drifter',
     color: '#ff4444',
+    image: 'enemy_drifter',
   } satisfies EnemyData,
   seeker: {
-    width: 56,
-    height: 56,
+    width: 38,
+    height: 25,
     speed: 120,
     health: 2,
     damage: 2,
     collisionRadius: 28,
     behaviourType: 'seek',
     color: '#ff8844',
+    image: 'enemy_seeker',
   } satisfies EnemyData,
 }; /*as const*/
