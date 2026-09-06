@@ -6,6 +6,7 @@ import { ImageManager } from '../managers/ImageManager.ts';
 import { AudioManager } from '../managers/AudioManager.ts';
 import { UIManager } from '../managers/UIManager.ts';
 import { EnemyManager } from '../managers/EnemyManager.ts';
+import { EnemySpawner } from '../managers/EnemySpawner.ts';
 
 export type GameState = 'menu' | 'playing' | 'paused';
 
@@ -19,7 +20,8 @@ export class Game {
   private readonly audioManager: AudioManager;
   private readonly uiManager: UIManager;
   private readonly renderSystem: RenderSystem;
-  private enemyManager: EnemyManager;
+  private readonly enemyManager: EnemyManager;
+  private readonly enemySpawner: EnemySpawner;
   private state: GameState;
 
   constructor() {
@@ -30,6 +32,7 @@ export class Game {
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.uiManager = new UIManager(this);
     this.enemyManager = new EnemyManager();
+    this.enemySpawner = new EnemySpawner(this.enemyManager);
 
     this.player = new Player();
     this.keys = {};
@@ -65,6 +68,7 @@ export class Game {
 
     this.player.update(deltaTime, this.keys);
     this.enemyManager.update(deltaTime, this.player);
+    this.enemySpawner.update(deltaTime);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -118,12 +122,7 @@ export class Game {
 
     this.player.reset();
     this.enemyManager.reset();
-    this.enemyManager.spawn('drifter', 300, 600);
-    this.enemyManager.spawn('drifter', 500, 100);
-    this.enemyManager.spawn('drifter', 700, 300);
-    this.enemyManager.spawn('seeker', 900, 50);
-    this.enemyManager.spawn('seeker', 100, 500);
-    this.enemyManager.spawn('seeker', 800, 100);
+    this.enemySpawner.reset();
 
     this.lastTime = performance.now();
   }
