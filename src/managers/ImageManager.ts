@@ -1,3 +1,6 @@
+import { enemyData } from '../data/enemyData.ts';
+import { playerData } from '../data/playerData.ts';
+
 type ImageData = {
   image: HTMLImageElement;
   loaded: boolean;
@@ -30,13 +33,17 @@ export class ImageManager {
   }
 
   async loadAll(): Promise<void> {
-    await Promise.all([
-      this.load('player', document.baseURI + '/images/player.png'),
-      this.load(
-        'enemy_drifter',
-        document.baseURI + '/images/enemy_drifter.png',
+    const imagesEntries = [
+      ...Object.values(enemyData).map((enemy) => ({
+        name: enemy.image,
+        path: `/images/${enemy.image}.png`,
+      })),
+      { name: playerData.image, path: `/images/${playerData.image}.png` },
+    ];
+    await Promise.all(
+      imagesEntries.map(({ name, path }) =>
+        this.load(name, document.baseURI + path),
       ),
-      this.load('enemy_seeker', document.baseURI + '/images/enemy_seeker.png'),
-    ]);
+    );
   }
 }
