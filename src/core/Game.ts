@@ -7,6 +7,8 @@ import { AudioManager } from '../managers/AudioManager.ts';
 import { UIManager } from '../managers/UIManager.ts';
 import { EnemyManager } from '../managers/EnemyManager.ts';
 import { EnemySpawner } from '../managers/EnemySpawner.ts';
+import { EventEmitter } from './EventEmitter.ts';
+import type { Events, GameEventEmitter } from './Events.ts';
 
 export type GameState = 'menu' | 'playing' | 'paused';
 
@@ -16,6 +18,8 @@ export class Game {
   private keys: Keys;
   private lastTime: DOMHighResTimeStamp;
   private time: number;
+
+  private readonly events: GameEventEmitter;
   private readonly imageManager: ImageManager;
   private readonly audioManager: AudioManager;
   private readonly uiManager: UIManager;
@@ -27,10 +31,11 @@ export class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 
+    this.events = new EventEmitter<Events>();
     this.imageManager = new ImageManager();
     this.audioManager = new AudioManager();
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
-    this.uiManager = new UIManager(this);
+    this.uiManager = new UIManager(this.events);
     this.enemyManager = new EnemyManager();
     this.enemySpawner = new EnemySpawner(this.enemyManager);
 
@@ -52,6 +57,11 @@ export class Game {
         return setTimeout(resolve, DEBUG_LOAD_DELAY);
       }),
     ]);
+
+    this.events.on('sound', (name) => this.audioManager.play(name));
+    this.events.on('game:start', () => this.startGame());
+    this.events.on('game:resume', () => this.resume());
+    this.events.on('game:returnToMenu', () => this.returnToMenu());
 
     this.uiManager.showPanel('mainMenu');
 
@@ -113,8 +123,8 @@ export class Game {
     });
   }
 
-  startGame() {
-    this.playSound('button_click');
+  private startGame() {
+    this.events.emit('sound', 'button_click');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
     this.time = 0;
@@ -128,28 +138,23 @@ export class Game {
   }
 
   pause() {
-    this.playSound('pause');
+    this.events.emit('sound', 'pause');
     this.state = 'paused';
     this.uiManager.showPanel('pauseMenu');
   }
 
   resume() {
-    this.playSound('unpause');
+    this.events.emit('sound', 'unpause');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
   }
 
   returnToMenu() {
-    this.playSound('button_click');
+    this.events.emit('sound', 'button_click');
     this.state = 'menu';
     this.uiManager.hideTimer();
     this.uiManager.showPanel('mainMenu');
   }
-
-  playSound(name: string) {
-    this.audioManager.play(name);
-  }
-
   private resizeCanvas() {
     const ratio = GAME_WIDTH / GAME_HEIGHT;
     let width, height;
