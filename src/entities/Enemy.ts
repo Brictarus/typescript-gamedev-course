@@ -19,6 +19,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   y: number;
   width: number;
   height: number;
+  facingLeft: boolean;
 
   private health: number;
   private damage: number;
@@ -44,6 +45,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.collisionRadius = data.collisionRadius;
 
     this.active = false;
+    this.facingLeft = false;
   }
 
   isActive() {
@@ -63,6 +65,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
   reset() {
     this.active = false;
+    this.facingLeft = false;
     this.health = this.data.health;
     this.behaviour.reset?.();
   }
@@ -80,6 +83,8 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
       return;
     }
 
+    const oldX = this.x;
     this.behaviour.update(deltaTime, this, player);
+    this.facingLeft = this.x < oldX;
   }
 }

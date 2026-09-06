@@ -96,6 +96,6 @@ button:hover {
   text-shadow: 0 0 20px rgba(var(--color), 0.9);
   font-weight: 700;
   z-index: 1000;
-  /*display: none;*/
+  display: none;
   pointer-events: none;
 }

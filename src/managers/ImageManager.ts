@@ -32,6 +32,11 @@ export class ImageManager {
   async loadAll(): Promise<void> {
     await Promise.all([
       this.load('player', document.baseURI + '/images/player.png'),
+      this.load(
+        'enemy_drifter',
+        document.baseURI + '/images/enemy_drifter.png',
+      ),
+      this.load('enemy_seeker', document.baseURI + '/images/enemy_seeker.png'),
     ]);
   }
 }
