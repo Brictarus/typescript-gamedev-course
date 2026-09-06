@@ -9,6 +9,9 @@ import { EnemyManager } from '../managers/EnemyManager.ts';
 import { EnemySpawner } from '../managers/EnemySpawner.ts';
 import { EventEmitter } from './EventEmitter.ts';
 import type { Events, GameEventEmitter } from './Events.ts';
+import { CollisionManager } from '../managers/CollisionManager.ts';
+import { CollisionSystem } from '../systems/CollisionSystem.ts';
+import type { Enemy } from '../entities/Enemy.ts';
 
 export type GameState = 'menu' | 'playing' | 'paused';
 
@@ -25,6 +28,7 @@ export class Game {
   private readonly uiManager: UIManager;
   private readonly renderSystem: RenderSystem;
   private readonly enemyManager: EnemyManager;
+  private readonly collisionManager: CollisionManager;
   private readonly enemySpawner: EnemySpawner;
   private state: GameState;
 
@@ -38,6 +42,10 @@ export class Game {
     this.uiManager = new UIManager(this.events);
     this.enemyManager = new EnemyManager();
     this.enemySpawner = new EnemySpawner(this.enemyManager);
+    this.collisionManager = new CollisionManager(
+      new CollisionSystem(),
+      this.events,
+    );
 
     this.player = new Player();
     this.keys = {};
@@ -73,12 +81,13 @@ export class Game {
     window.requestAnimationFrame((time) => this.gameLoop(time));
   }
 
-  private update(deltaTime: number) {
+  private update(deltaTime: number, activeEnemies: Enemy[]) {
     if (this.state !== 'playing') return;
 
     this.player.update(deltaTime, this.keys);
     this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
+    this.collisionManager.update(this.player, activeEnemies);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -91,12 +100,10 @@ export class Game {
       this.uiManager.updateTimer(this.time);
     }
 
-    this.update(cappedDeltaTime);
-    this.renderSystem.render(
-      this.state,
-      this.player,
-      this.enemyManager.getActiveEnemies(),
-    );
+    const activeEnemies = this.enemyManager.getActiveEnemies();
+
+    this.update(cappedDeltaTime, activeEnemies);
+    this.renderSystem.render(this.state, this.player, activeEnemies);
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 

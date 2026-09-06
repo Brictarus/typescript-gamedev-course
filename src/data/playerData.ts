@@ -4,4 +4,5 @@ export const playerData = {
   speed: 300,
   collisionRadius: 28,
   image: 'player',
+  maxHealth: 12,
 };
