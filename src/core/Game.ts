@@ -13,7 +13,7 @@ import { CollisionManager } from '../managers/CollisionManager.ts';
 import { CollisionSystem } from '../systems/CollisionSystem.ts';
 import type { Enemy } from '../entities/Enemy.ts';
 
-export type GameState = 'menu' | 'playing' | 'paused';
+export type GameState = 'menu' | 'playing' | 'paused' | 'gameOver';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -76,6 +76,10 @@ export class Game {
     this.events.on('player:damaged', ({ health, maxHealth }) => {
       this.events.emit('sound', 'player_hurt');
       this.uiManager.updateHealth(health, maxHealth);
+    });
+    this.events.on('player:died', () => {
+      this.events.emit('sound', 'game_over');
+      this.gameOver();
     });
 
     this.uiManager.showPanel('mainMenu');
@@ -192,5 +196,11 @@ export class Game {
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     this.canvas.style.margin = `${margin}px`;
+  }
+
+  private gameOver() {
+    this.state = 'gameOver';
+    this.uiManager.hideHud();
+    this.uiManager.showPanel('gameOverMenu');
   }
 }

@@ -48,6 +48,12 @@ export class RenderSystem {
 
   private renderPlayer(player: Player) {
     const playerImage = this.imageManager.get('player');
+
+    if (player.invincible) {
+      this.ctx.globalAlpha =
+        0.2 + 0.6 * Math.abs(Math.sin(player.invincibilityTimer * 10));
+    }
+
     if (playerImage) {
       this.ctx.drawImage(playerImage, player.x, player.y);
     } else {
@@ -56,6 +62,7 @@ export class RenderSystem {
       this.ctx.strokeStyle = 'white';
       this.ctx.strokeRect(player.x, player.y, player.width, player.height);
     }
+    this.ctx.globalAlpha = 1;
   }
 
   private renderMenuBackground() {
