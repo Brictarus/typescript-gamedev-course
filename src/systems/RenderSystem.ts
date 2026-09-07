@@ -50,7 +50,8 @@ export class RenderSystem {
     const playerImage = this.imageManager.get('player');
 
     if (player.invincible) {
-      this.ctx.globalAlpha = 0.2;
+      this.ctx.globalAlpha =
+        0.2 + 0.6 * Math.abs(Math.sin(player.invincibilityTimer * 10));
     }
 
     if (playerImage) {

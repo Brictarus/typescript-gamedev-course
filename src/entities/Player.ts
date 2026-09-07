@@ -10,11 +10,11 @@ export class Player {
   maxHealth: number;
   health: number;
   invincible: boolean;
+  invincibilityTimer: number;
   private speed: number;
   private speedMultiplier: number;
   readonly collisionRadius: number;
   private invincibilityDuration: number;
-  private invincibilityTimer: number;
 
   constructor() {
     this.width = playerData.width;
