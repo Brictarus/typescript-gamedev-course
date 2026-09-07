@@ -18,6 +18,9 @@ export class CollisionManager {
 
   private checkPlayerVsEnemies(player: Player, enemies: Enemy[]) {
     for (const enemy of enemies) {
+      if (player.isDead()) {
+        return;
+      }
       this.checkPlayerVsEnemy(enemy, player);
     }
   }
@@ -32,6 +35,9 @@ export class CollisionManager {
           health: player.health,
           maxHealth: player.maxHealth,
         });
+        if (player.isDead()) {
+          this.events.emit('player:died');
+        }
       }
       this.events.emit('enemy:died', enemy);
     }

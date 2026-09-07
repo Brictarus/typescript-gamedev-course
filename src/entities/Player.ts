@@ -81,4 +81,8 @@ export class Player {
     this.invincibilityTimer = this.invincibilityDuration;
     return true;
   }
+
+  isDead() {
+    return this.health <= 0;
+  }
 }
