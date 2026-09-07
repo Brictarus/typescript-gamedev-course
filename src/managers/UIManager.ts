@@ -22,12 +22,6 @@ export class UIManager {
   private readonly loadingScreenEl: HTMLElement | null;
   private readonly gameOverMenuEl: HTMLElement | null;
 
-  private readonly playBtnEl: HTMLElement | null;
-  private readonly resumeBtnEl: HTMLElement | null;
-  private readonly quitBtnEl: HTMLElement | null;
-  private readonly playAgainBtnEl: HTMLElement | null;
-  private readonly quitFromGameOverBtnEl: HTMLElement | null;
-
   constructor(events: GameEventEmitter) {
     this.events = events;
 
@@ -41,40 +35,26 @@ export class UIManager {
     this.loadingScreenEl = document.getElementById('loadingScreen');
     this.gameOverMenuEl = document.getElementById('gameOverMenu');
 
-    this.playBtnEl = document.getElementById('playBtn');
-    this.resumeBtnEl = document.getElementById('resumeBtn');
-    this.quitBtnEl = document.getElementById('quitBtn');
-    this.playAgainBtnEl = document.getElementById('playAgainBtn');
-    this.quitFromGameOverBtnEl = document.getElementById('quitFromGameOverBtn');
-
     this.setupEventListeners();
   }
 
   private setupEventListeners() {
-    this.playBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:start', undefined);
-    });
-    this.resumeBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:resume', undefined);
-    });
-    this.quitBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:returnToMenu', undefined);
-    });
-    this.playAgainBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:start', undefined);
-    });
-    this.quitFromGameOverBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:returnToMenu', undefined);
-    });
+    const buttonActions: { [key: string]: () => void } = {
+      start: () => this.events.emit('game:start', undefined),
+      resume: () => this.events.emit('game:resume', undefined),
+      returnToMenu: () => this.events.emit('game:returnToMenu', undefined),
+    };
 
-    [
-      this.playBtnEl,
-      this.resumeBtnEl,
-      this.quitBtnEl,
-      this.playAgainBtnEl,
-      this.quitFromGameOverBtnEl,
-    ].forEach((button) => {
-      button?.addEventListener('mouseenter', () =>
+    for (const action in buttonActions) {
+      document
+        .querySelectorAll(`[data-action="${action}"]`)
+        .forEach((button) =>
+          button.addEventListener('click', buttonActions[action]),
+        );
+    }
+
+    document.querySelectorAll(`[data-action]`).forEach((button) => {
+      button.addEventListener('mouseenter', () =>
         this.events.emit('sound', 'button_hover'),
       );
     });
