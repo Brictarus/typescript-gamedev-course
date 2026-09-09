@@ -7,3 +7,8 @@ export const playerData = {
   maxHealth: 12,
   invincibilityDuration: 2, // seconds
 };
+
+export const missionData = {
+  surviveTime: 60, // seconds
+  killCount: 10,
+};

@@ -12,8 +12,10 @@ import type { Events, GameEventEmitter } from './Events.ts';
 import { CollisionManager } from '../managers/CollisionManager.ts';
 import { CollisionSystem } from '../systems/CollisionSystem.ts';
 import type { Enemy } from '../entities/Enemy.ts';
+import { missionData } from '../data/playerData.ts';
 
-export type GameState = 'menu' | 'playing' | 'paused' | 'gameOver';
+export type GameState =
+  'menu' | 'playing' | 'paused' | 'gameOver' | 'missionComplete';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -31,6 +33,7 @@ export class Game {
   private readonly collisionManager: CollisionManager;
   private readonly enemySpawner: EnemySpawner;
   private state: GameState;
+  private enemiesKilled: number;
 
   constructor() {
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -51,6 +54,7 @@ export class Game {
     this.keys = {};
     this.lastTime = 0;
     this.time = 0;
+    this.enemiesKilled = 0;
     this.state = 'menu';
 
     this.init();
@@ -72,6 +76,12 @@ export class Game {
     this.events.on('game:pause', () => this.pause());
     this.events.on('game:resume', () => this.resume());
     this.events.on('game:returnToMenu', () => this.returnToMenu());
+    this.events.on('mission:complete', () => this.missionComplete());
+    this.events.on('enemy:died', () => {
+      this.enemiesKilled++;
+      this.events.emit('enemy:killCount', this.enemiesKilled);
+      this.checkMissionConditions();
+    });
 
     this.events.on('player:damaged', ({ health, maxHealth }) => {
       this.events.emit('sound', 'player_hurt');
@@ -109,6 +119,7 @@ export class Game {
     if (this.state === 'playing') {
       this.time += cappedDeltaTime;
       this.uiManager.updateTimer(this.time);
+      this.checkMissionConditions();
     }
 
     const activeEnemies = this.enemyManager.getActiveEnemies();
@@ -146,6 +157,7 @@ export class Game {
     this.state = 'playing';
     this.uiManager.hideAllPanels();
     this.time = 0;
+    this.enemiesKilled = 0;
     this.uiManager.showHud();
 
     this.player.reset();
@@ -202,5 +214,22 @@ export class Game {
     this.state = 'gameOver';
     this.uiManager.hideHud();
     this.uiManager.showPanel('gameOverMenu');
+  }
+
+  private missionComplete() {
+    this.state = 'missionComplete';
+    this.uiManager.hideHud();
+    this.uiManager.showPanel('missionCompleteMenu');
+    this.events.emit('sound', 'mission_complete');
+  }
+
+  private checkMissionConditions() {
+    if (this.state !== 'playing') return;
+    if (
+      this.enemiesKilled >= missionData.killCount ||
+      this.time >= missionData.surviveTime
+    ) {
+      this.events.emit('mission:complete');
+    }
   }
 }
