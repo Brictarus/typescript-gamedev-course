@@ -35,7 +35,10 @@ export class Game {
   private state: GameState;
   private enemiesKilled: number;
 
+  private debug: boolean;
+
   constructor() {
+    this.debug = false;
     this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 
     this.events = new EventEmitter<Events>();
@@ -122,7 +125,12 @@ export class Game {
     const activeEnemies = this.enemyManager.getActiveEnemies();
 
     this.update(cappedDeltaTime, activeEnemies);
-    this.renderSystem.render(this.state, this.player, activeEnemies);
+    this.renderSystem.render(
+      this.state,
+      this.player,
+      activeEnemies,
+      this.debug,
+    );
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
 
@@ -136,6 +144,9 @@ export class Game {
         } else if (this.state === 'paused') {
           this.events.emit('game:resume');
         }
+      }
+      if (e.key === ',') {
+        this.debug = !this.debug;
       }
     });
     window.addEventListener('keyup', (e) => {

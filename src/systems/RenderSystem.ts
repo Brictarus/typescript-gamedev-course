@@ -25,7 +25,7 @@ export class RenderSystem {
     this.ctx = this.canvas.getContext('2d')!;
   }
 
-  render(state: GameState, player: Player, enemies: Enemy[]) {
+  render(state: GameState, player: Player, enemies: Enemy[], debug: boolean) {
     if (state === 'menu') {
       this.renderMenuBackground();
     } else {
@@ -35,6 +35,9 @@ export class RenderSystem {
       this.renderGrid();
       this.renderEnemies(enemies);
       this.renderPlayer(player);
+      if (debug) {
+        this.renderDebugOverlay(player, enemies);
+      }
     }
   }
 
@@ -131,5 +134,37 @@ export class RenderSystem {
     this.ctx.fillRect(x, y, width, HEALTH_BAR_HEIGHT);
     this.ctx.fillStyle = HEALTH_BAR_FILL;
     this.ctx.fillRect(x, y, Math.ceil(width * percent), HEALTH_BAR_HEIGHT);
+  }
+
+  private renderDebugOverlay(player: Player, enemies: Enemy[]) {
+    this.ctx.save();
+
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = 'green';
+    this.ctx.beginPath();
+    this.ctx.arc(
+      player.centerX(),
+      player.centerY(),
+      player.collisionRadius,
+      0,
+      Math.PI * 2,
+    );
+    this.ctx.stroke();
+
+    enemies.forEach((enemy) => {
+      if (!enemy.active) return;
+      this.ctx.strokeStyle = enemy.data.color;
+      this.ctx.beginPath();
+      this.ctx.arc(
+        enemy.centerX(),
+        enemy.centerY(),
+        enemy.collisionRadius,
+        0,
+        Math.PI * 2,
+      );
+      this.ctx.stroke();
+    });
+
+    this.ctx.restore();
   }
 }

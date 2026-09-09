@@ -42,7 +42,7 @@ export const enemyData: { [type: string]: EnemyData } = {
     speed: 120,
     health: 3,
     damage: 2,
-    collisionRadius: 28,
+    collisionRadius: 14,
     behaviourType: 'seek',
     color: '#ff8844',
     image: 'enemy_seeker',
