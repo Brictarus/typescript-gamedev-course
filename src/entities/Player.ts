@@ -15,6 +15,7 @@ export class Player {
   private speedMultiplier: number;
   readonly collisionRadius: number;
   private invincibilityDuration: number;
+  collisionDamage: number;
 
   constructor() {
     this.width = playerData.width;
@@ -23,6 +24,7 @@ export class Player {
     this.x = (GAME_WIDTH - this.width) / 2;
     this.y = (GAME_HEIGHT - this.height) / 2;
     this.collisionRadius = playerData.collisionRadius;
+    this.collisionDamage = playerData.collisionDamage;
     this.speed = playerData.speed;
     this.maxHealth = playerData.maxHealth;
     this.health = this.maxHealth;

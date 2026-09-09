@@ -28,9 +28,16 @@ export class CollisionManager {
   private checkPlayerVsEnemy(enemy: Enemy, player: Player) {
     if (!enemy.active) return;
     if (this.collisionSystem.checkCircleCircle(player, enemy)) {
-      enemy.active = false;
-      const damageApplied = player.takeDamage(enemy.damage);
-      if (damageApplied) {
+      const enemyDamageApplied = enemy.takeDamage(player.collisionDamage);
+      if (enemyDamageApplied) {
+        this.events.emit('enemy:damaged', enemy);
+        if (enemy.isDead()) {
+          enemy.active = false;
+          this.events.emit('enemy:died', enemy);
+        }
+      }
+      const playerDamageApplied = player.takeDamage(enemy.damage);
+      if (playerDamageApplied) {
         this.events.emit('player:damaged', {
           health: player.health,
           maxHealth: player.maxHealth,
@@ -39,7 +46,6 @@ export class CollisionManager {
           this.events.emit('player:died');
         }
       }
-      this.events.emit('enemy:died', enemy);
     }
   }
 }

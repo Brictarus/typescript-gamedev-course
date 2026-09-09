@@ -2,6 +2,7 @@ import type { EnemyData } from '../data/enemyData.ts';
 import type { Player } from './Player.ts';
 import {
   ENEMY_DESPAWN_MARGIN,
+  ENEMY_HIT_INVINCIBILITY_DURATION,
   GAME_HEIGHT,
   GAME_WIDTH,
 } from '../core/constants.ts';
@@ -21,7 +22,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   height: number;
   facingLeft: boolean;
 
-  private health: number;
+  health: number;
   readonly damage: number;
   readonly collisionRadius: number;
 
@@ -29,6 +30,9 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
   active: boolean;
   private behaviour: Behaviour;
+
+  invincible: boolean;
+  invincibilityTimer: number;
 
   constructor(data: EnemyData, behaviour: Behaviour) {
     this.data = data;
@@ -46,6 +50,9 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
     this.active = false;
     this.facingLeft = false;
+
+    this.invincible = false;
+    this.invincibilityTimer = 0;
   }
 
   spawn(x: number, y: number) {
@@ -69,6 +76,14 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   update(deltaTime: number, { player }: EnemyUpdateContext) {
     if (!this.active) return;
 
+    if (this.invincible) {
+      this.invincibilityTimer -= deltaTime;
+      if (this.invincibilityTimer <= 0) {
+        this.invincible = false;
+        this.invincibilityTimer = 0;
+      }
+    }
+
     if (
       this.x < -ENEMY_DESPAWN_MARGIN ||
       this.x > GAME_WIDTH + ENEMY_DESPAWN_MARGIN ||
@@ -82,5 +97,18 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     const oldX = this.x;
     this.behaviour.update(deltaTime, this, player);
     this.facingLeft = this.x < oldX;
+  }
+
+  takeDamage(amount: number) {
+    if (this.invincible) return false;
+
+    this.health = Math.max(0, this.health - amount);
+    this.invincible = true;
+    this.invincibilityTimer = ENEMY_HIT_INVINCIBILITY_DURATION;
+    return true;
+  }
+
+  isDead() {
+    return this.health <= 0;
   }
 }

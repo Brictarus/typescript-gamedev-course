@@ -17,7 +17,7 @@ export const enemyData: { [type: string]: EnemyData } = {
     width: 48,
     height: 48,
     speed: 80,
-    health: 1,
+    health: 5,
     damage: 1,
     collisionRadius: 24,
     behaviourType: 'drifter',
@@ -28,11 +28,11 @@ export const enemyData: { [type: string]: EnemyData } = {
     width: 38,
     height: 25,
     speed: 120,
-    health: 2,
+    health: 3,
     damage: 2,
     collisionRadius: 28,
     behaviourType: 'seek',
     color: '#ff8844',
     image: 'enemy_seeker',
   } satisfies EnemyData,
-}; /*as const*/
+};
