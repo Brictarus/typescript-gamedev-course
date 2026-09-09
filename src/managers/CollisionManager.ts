@@ -28,18 +28,37 @@ export class CollisionManager {
   private checkPlayerVsEnemy(enemy: Enemy, player: Player) {
     if (!enemy.active) return;
     if (this.collisionSystem.checkCircleCircle(player, enemy)) {
-      enemy.active = false;
-      const damageApplied = player.takeDamage(enemy.damage);
-      if (damageApplied) {
+      const dx = player.centerX() - enemy.centerX();
+      const dy = player.centerY() - enemy.centerY();
+
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const nx = distance > 0 ? dx / distance : 1;
+      const ny = distance > 0 ? dy / distance : 0;
+
+      const enemyDamageApplied = enemy.takeDamage(player.collisionDamage);
+      if (enemyDamageApplied) {
+        if (enemy.isDead()) {
+          enemy.active = false;
+          this.events.emit('enemy:died', enemy);
+        } else {
+          this.events.emit('enemy:damaged', enemy);
+          if (!enemy.data.pushbackImmune) {
+            enemy.applyPushback(-nx, -ny, enemy.data.pushbackForce);
+          }
+        }
+      }
+      const playerDamageApplied = player.takeDamage(enemy.damage);
+      if (playerDamageApplied) {
         this.events.emit('player:damaged', {
           health: player.health,
           maxHealth: player.maxHealth,
         });
         if (player.isDead()) {
           this.events.emit('player:died');
+        } else if (enemy.data.pushbackImmune) {
+          player.applyPushback(nx, ny, player.pushbackForce);
         }
       }
-      this.events.emit('enemy:died', enemy);
     }
   }
 }

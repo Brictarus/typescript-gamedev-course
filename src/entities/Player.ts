@@ -1,4 +1,4 @@
-import { GAME_HEIGHT, GAME_WIDTH } from '../core/constants.ts';
+import { GAME_HEIGHT, GAME_WIDTH, PUSHBACK_DECAY } from '../core/constants.ts';
 import type { Keys } from '../systems/input/Keys.ts';
 import { playerData } from '../data/playerData.ts';
 
@@ -15,6 +15,11 @@ export class Player {
   private speedMultiplier: number;
   readonly collisionRadius: number;
   private invincibilityDuration: number;
+  collisionDamage: number;
+
+  pushbackForce: number;
+  private pushVx: number;
+  private pushVy: number;
 
   constructor() {
     this.width = playerData.width;
@@ -23,6 +28,7 @@ export class Player {
     this.x = (GAME_WIDTH - this.width) / 2;
     this.y = (GAME_HEIGHT - this.height) / 2;
     this.collisionRadius = playerData.collisionRadius;
+    this.collisionDamage = playerData.collisionDamage;
     this.speed = playerData.speed;
     this.maxHealth = playerData.maxHealth;
     this.health = this.maxHealth;
@@ -31,6 +37,17 @@ export class Player {
     this.invincibilityTimer = 0;
 
     this.speedMultiplier = 1;
+    this.pushbackForce = playerData.pushbackForce;
+    this.pushVx = 0;
+    this.pushVy = 0;
+  }
+
+  centerX() {
+    return this.x + this.width / 2;
+  }
+
+  centerY() {
+    return this.y + this.height / 2;
   }
 
   reset() {
@@ -41,6 +58,9 @@ export class Player {
     this.health = this.maxHealth;
     this.invincible = false;
     this.invincibilityTimer = 0;
+
+    this.pushVx = 0;
+    this.pushVy = 0;
   }
 
   update(deltaTime: number, keys: Keys) {
@@ -49,6 +69,24 @@ export class Player {
       if (this.invincibilityTimer <= 0) {
         this.invincible = false;
         this.invincibilityTimer = 0;
+      }
+    }
+
+    if (this.pushVx !== 0 || this.pushVy !== 0) {
+      this.x += this.pushVx * deltaTime;
+      this.y += this.pushVy * deltaTime;
+
+      const speed = Math.sqrt(
+        this.pushVx * this.pushVx + this.pushVy * this.pushVy,
+      );
+      const decay = PUSHBACK_DECAY * deltaTime;
+      if (speed <= decay) {
+        this.pushVx = 0;
+        this.pushVy = 0;
+      } else {
+        const ratio = (speed - decay) / speed;
+        this.pushVx *= ratio;
+        this.pushVy *= ratio;
       }
     }
 
@@ -71,6 +109,11 @@ export class Player {
 
     this.x = Math.max(0, Math.min(GAME_WIDTH - this.width, this.x));
     this.y = Math.max(0, Math.min(GAME_HEIGHT - this.height, this.y));
+  }
+
+  applyPushback(directionX: number, directionY: number, force: number) {
+    this.pushVx = directionX * force;
+    this.pushVy = directionY * force;
   }
 
   takeDamage(amount: number) {

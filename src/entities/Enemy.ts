@@ -2,8 +2,10 @@ import type { EnemyData } from '../data/enemyData.ts';
 import type { Player } from './Player.ts';
 import {
   ENEMY_DESPAWN_MARGIN,
+  ENEMY_HIT_INVINCIBILITY_DURATION,
   GAME_HEIGHT,
   GAME_WIDTH,
+  PUSHBACK_DECAY,
 } from '../core/constants.ts';
 import type { PoolableObject } from '../utils/ObjectPooler.ts';
 import type { Behaviour } from './behaviours/Behaviour.ts';
@@ -21,7 +23,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   height: number;
   facingLeft: boolean;
 
-  private health: number;
+  health: number;
   readonly damage: number;
   readonly collisionRadius: number;
 
@@ -29,6 +31,12 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
   active: boolean;
   private behaviour: Behaviour;
+
+  invincible: boolean;
+  invincibilityTimer: number;
+
+  private pushVx: number;
+  private pushVy: number;
 
   constructor(data: EnemyData, behaviour: Behaviour) {
     this.data = data;
@@ -46,6 +54,20 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
     this.active = false;
     this.facingLeft = false;
+
+    this.invincible = false;
+    this.invincibilityTimer = 0;
+
+    this.pushVx = 0;
+    this.pushVy = 0;
+  }
+
+  centerX() {
+    return this.x + this.width / 2;
+  }
+
+  centerY() {
+    return this.y + this.height / 2;
   }
 
   spawn(x: number, y: number) {
@@ -64,10 +86,21 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.facingLeft = false;
     this.health = this.data.health;
     this.behaviour.reset?.();
+
+    this.pushVx = 0;
+    this.pushVy = 0;
   }
 
   update(deltaTime: number, { player }: EnemyUpdateContext) {
     if (!this.active) return;
+
+    if (this.invincible) {
+      this.invincibilityTimer -= deltaTime;
+      if (this.invincibilityTimer <= 0) {
+        this.invincible = false;
+        this.invincibilityTimer = 0;
+      }
+    }
 
     if (
       this.x < -ENEMY_DESPAWN_MARGIN ||
@@ -79,8 +112,44 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
       return;
     }
 
+    if (this.pushVx !== 0 || this.pushVy !== 0) {
+      this.x += this.pushVx * deltaTime;
+      this.y += this.pushVy * deltaTime;
+
+      const speed = Math.sqrt(
+        this.pushVx * this.pushVx + this.pushVy * this.pushVy,
+      );
+      const decay = PUSHBACK_DECAY * deltaTime;
+      if (speed <= decay) {
+        this.pushVx = 0;
+        this.pushVy = 0;
+      } else {
+        const ratio = (speed - decay) / speed;
+        this.pushVx *= ratio;
+        this.pushVy *= ratio;
+      }
+    }
+
     const oldX = this.x;
     this.behaviour.update(deltaTime, this, player);
     this.facingLeft = this.x < oldX;
+  }
+
+  applyPushback(directionX: number, directionY: number, force: number) {
+    this.pushVx = directionX * force;
+    this.pushVy = directionY * force;
+  }
+
+  takeDamage(amount: number) {
+    if (this.invincible) return false;
+
+    this.health = Math.max(0, this.health - amount);
+    this.invincible = true;
+    this.invincibilityTimer = ENEMY_HIT_INVINCIBILITY_DURATION;
+    return true;
+  }
+
+  isDead() {
+    return this.health <= 0;
   }
 }

@@ -9,8 +9,10 @@ export type Events = {
   'game:returnToMenu': undefined;
   'player:damaged': { health: number; maxHealth: number };
   'player:died': undefined;
-  'enemy:damaged': { health: number; maxHealth: number };
+  'enemy:damaged': Enemy;
   'enemy:died': Enemy;
+  'enemy:killCount': number;
+  'mission:complete': undefined;
 };
 
 export type GameEventEmitter = Emitter<Events>;

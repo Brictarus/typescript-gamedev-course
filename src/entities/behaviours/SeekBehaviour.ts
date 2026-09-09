@@ -4,8 +4,8 @@ import type { Behaviour } from './Behaviour.ts';
 
 export class SeekBehaviour implements Behaviour {
   update(deltaTime: number, enemy: Enemy, player: Player) {
-    const dx = player.x + player.width / 2 - (enemy.x + enemy.width / 2);
-    const dy = player.y + player.height / 2 - (enemy.y + enemy.height / 2);
+    const dx = player.centerX() - enemy.centerX();
+    const dy = player.centerY() - enemy.centerY();
     const length = Math.sqrt(dx * dx + dy * dy);
 
     if (length > 0) {

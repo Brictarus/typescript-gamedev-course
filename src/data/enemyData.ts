@@ -10,6 +10,12 @@ export type EnemyData = {
   behaviourType: BehaviourType;
   color: string;
   image: string;
+  pushbackForce: number;
+  pushbackImmune: boolean;
+  sounds: {
+    hit: string;
+    death: string;
+  };
 };
 
 export const enemyData: { [type: string]: EnemyData } = {
@@ -17,22 +23,35 @@ export const enemyData: { [type: string]: EnemyData } = {
     width: 48,
     height: 48,
     speed: 80,
-    health: 1,
+    health: 5,
     damage: 1,
     collisionRadius: 24,
     behaviourType: 'drifter',
     color: '#ff4444',
     image: 'enemy_drifter',
-  } satisfies EnemyData,
+    pushbackForce: 0,
+    pushbackImmune: true,
+    sounds: {
+      hit: 'enemy_drifter_hit',
+      death: 'enemy_drifter_death',
+    },
+  },
   seeker: {
     width: 38,
     height: 25,
     speed: 120,
-    health: 2,
+    health: 3,
     damage: 2,
-    collisionRadius: 28,
+    collisionRadius: 14,
     behaviourType: 'seek',
     color: '#ff8844',
     image: 'enemy_seeker',
-  } satisfies EnemyData,
-}; /*as const*/
+    pushbackForce: 580,
+    pushbackImmune: false,
+
+    sounds: {
+      hit: 'enemy_seeker_hit',
+      death: 'enemy_seeker_death',
+    },
+  },
+};

@@ -9,33 +9,44 @@
   <body>
     <div id="gameContainer">
       <canvas id="gameCanvas"></canvas>
+
       <div id="hud">
         <div id="timer">0:00</div>
         <div id="healthBarContainer">
           <div id="healthBarFill"></div>
         </div>
       </div>
+
       <div id="mainMenu" class="ui-panel">
         <h1>Game starter Kit</h1>
-        <button id="playBtn">Play</button>
+        <button data-action="start">Play</button>
         <div style="margin-top: 20px; font-size: 12px">
           <div>ZQSD - Move</div>
           <div>ESC - Pause</div>
         </div>
       </div>
+
       <div id="pauseMenu" class="ui-panel">
         <h2>PAUSED</h2>
-        <button id="resumeBtn">RESUME</button>
-        <button id="quitBtn">QUIT TO MENU</button>
+        <button data-action="resume">RESUME</button>
+        <button data-action="returnToMenu">QUIT TO MENU</button>
       </div>
+
       <div id="loadingScreen" class="ui-panel active">
         <h2>Loading...</h2>
         <p>Sharpening the pixels...</p>
       </div>
+
       <div id="gameOverMenu" class="ui-panel">
         <h1>Game Over</h1>
-        <button id="playAgainBtn">Play Again</button>
-        <button id="quitFromGameOverBtn">Main Menu</button>
+        <button data-action="start">Play Again</button>
+        <button data-action="returnToMenu">Main Menu</button>
+      </div>
+
+      <div id="missionCompleteMenu" class="ui-panel">
+        <h1>Mission Complete</h1>
+        <button data-action="start">Play Again</button>
+        <button data-action="returnToMenu">Main Menu</button>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

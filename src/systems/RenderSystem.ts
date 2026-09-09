@@ -4,6 +4,15 @@ import { ImageManager } from '../managers/ImageManager.ts';
 import type { GameState } from '../core/Game.ts';
 import type { Enemy } from '../entities/Enemy.ts';
 
+const FLASH_MIN_ALPHA = 0.2;
+const FLASH_ALPHA_RANGE = 0.8;
+const FLASH_SPEED = 10;
+
+const HEALTH_BAR_HEIGHT = 4;
+const HEALTH_BAR_OFFSET = 6;
+const HEALTH_BAR_BACKGROUND = 'rgba(0, 0, 0, 0.6)';
+const HEALTH_BAR_FILL = '#ff5f6d';
+
 export class RenderSystem {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly imageManager: ImageManager;
@@ -16,7 +25,7 @@ export class RenderSystem {
     this.ctx = this.canvas.getContext('2d')!;
   }
 
-  render(state: GameState, player: Player, enemies: Enemy[]) {
+  render(state: GameState, player: Player, enemies: Enemy[], debug: boolean) {
     if (state === 'menu') {
       this.renderMenuBackground();
     } else {
@@ -26,6 +35,9 @@ export class RenderSystem {
       this.renderGrid();
       this.renderEnemies(enemies);
       this.renderPlayer(player);
+      if (debug) {
+        this.renderDebugOverlay(player, enemies);
+      }
     }
   }
 
@@ -51,7 +63,9 @@ export class RenderSystem {
 
     if (player.invincible) {
       this.ctx.globalAlpha =
-        0.2 + 0.6 * Math.abs(Math.sin(player.invincibilityTimer * 10));
+        FLASH_MIN_ALPHA +
+        FLASH_ALPHA_RANGE *
+          Math.abs(Math.sin(player.invincibilityTimer * FLASH_SPEED));
     }
 
     if (playerImage) {
@@ -74,6 +88,13 @@ export class RenderSystem {
     enemies.forEach((enemy) => {
       const enemyImage = this.imageManager.get(enemy.data.image);
 
+      if (enemy.invincible) {
+        this.ctx.globalAlpha =
+          FLASH_MIN_ALPHA +
+          FLASH_ALPHA_RANGE *
+            Math.abs(Math.sin(enemy.invincibilityTimer * FLASH_SPEED));
+      }
+
       if (enemyImage) {
         this.ctx.save();
         if (enemy.facingLeft) {
@@ -94,6 +115,56 @@ export class RenderSystem {
         this.ctx.fillStyle = enemy.data.color;
         this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
       }
+      this.ctx.globalAlpha = 1;
+
+      if (enemy.health < enemy.data.health) {
+        this.renderEnemyHealthBar(enemy);
+      }
     });
+  }
+
+  private renderEnemyHealthBar(enemy: Enemy) {
+    const percent = enemy.health / enemy.data.health;
+
+    const x = enemy.x;
+    const y = enemy.y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT;
+    const width = enemy.width;
+
+    this.ctx.fillStyle = HEALTH_BAR_BACKGROUND;
+    this.ctx.fillRect(x, y, width, HEALTH_BAR_HEIGHT);
+    this.ctx.fillStyle = HEALTH_BAR_FILL;
+    this.ctx.fillRect(x, y, Math.ceil(width * percent), HEALTH_BAR_HEIGHT);
+  }
+
+  private renderDebugOverlay(player: Player, enemies: Enemy[]) {
+    this.ctx.save();
+
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = 'green';
+    this.ctx.beginPath();
+    this.ctx.arc(
+      player.centerX(),
+      player.centerY(),
+      player.collisionRadius,
+      0,
+      Math.PI * 2,
+    );
+    this.ctx.stroke();
+
+    enemies.forEach((enemy) => {
+      if (!enemy.active) return;
+      this.ctx.strokeStyle = enemy.data.color;
+      this.ctx.beginPath();
+      this.ctx.arc(
+        enemy.centerX(),
+        enemy.centerY(),
+        enemy.collisionRadius,
+        0,
+        Math.PI * 2,
+      );
+      this.ctx.stroke();
+    });
+
+    this.ctx.restore();
   }
 }

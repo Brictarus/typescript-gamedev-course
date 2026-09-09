@@ -6,6 +6,7 @@ const panelsIds = [
   'pauseMenu',
   'loadingScreen',
   'gameOverMenu',
+  'missionCompleteMenu',
 ] as const;
 
 type PanelId = (typeof panelsIds)[number];
@@ -21,12 +22,13 @@ export class UIManager {
   private readonly pauseMenuEl: HTMLElement | null;
   private readonly loadingScreenEl: HTMLElement | null;
   private readonly gameOverMenuEl: HTMLElement | null;
+  private readonly missionCompleteMenuEl: HTMLElement | null;
 
-  private readonly playBtnEl: HTMLElement | null;
-  private readonly resumeBtnEl: HTMLElement | null;
-  private readonly quitBtnEl: HTMLElement | null;
-  private readonly playAgainBtnEl: HTMLElement | null;
-  private readonly quitFromGameOverBtnEl: HTMLElement | null;
+  private readonly buttonActions: { [key: string]: () => void } = {
+    start: () => this.events.emit('game:start', undefined),
+    resume: () => this.events.emit('game:resume', undefined),
+    returnToMenu: () => this.events.emit('game:returnToMenu', undefined),
+  };
 
   constructor(events: GameEventEmitter) {
     this.events = events;
@@ -34,47 +36,27 @@ export class UIManager {
     this.hudEl = document.getElementById('hud');
     this.timerEl = document.getElementById('timer');
     this.healthBarFillEl = document.getElementById('healthBarFill');
-    console.log('healthBarFillEl', this.healthBarFillEl);
 
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
     this.loadingScreenEl = document.getElementById('loadingScreen');
     this.gameOverMenuEl = document.getElementById('gameOverMenu');
-
-    this.playBtnEl = document.getElementById('playBtn');
-    this.resumeBtnEl = document.getElementById('resumeBtn');
-    this.quitBtnEl = document.getElementById('quitBtn');
-    this.playAgainBtnEl = document.getElementById('playAgainBtn');
-    this.quitFromGameOverBtnEl = document.getElementById('quitFromGameOverBtn');
+    this.missionCompleteMenuEl = document.getElementById('missionCompleteMenu');
 
     this.setupEventListeners();
   }
 
   private setupEventListeners() {
-    this.playBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:start', undefined);
-    });
-    this.resumeBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:resume', undefined);
-    });
-    this.quitBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:returnToMenu', undefined);
-    });
-    this.playAgainBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:start', undefined);
-    });
-    this.quitFromGameOverBtnEl?.addEventListener('click', () => {
-      this.events.emit('game:returnToMenu', undefined);
-    });
+    for (const action in this.buttonActions) {
+      document
+        .querySelectorAll(`[data-action="${action}"]`)
+        .forEach((button) =>
+          button.addEventListener('click', this.buttonActions[action]),
+        );
+    }
 
-    [
-      this.playBtnEl,
-      this.resumeBtnEl,
-      this.quitBtnEl,
-      this.playAgainBtnEl,
-      this.quitFromGameOverBtnEl,
-    ].forEach((button) => {
-      button?.addEventListener('mouseenter', () =>
+    document.querySelectorAll(`[data-action]`).forEach((button) => {
+      button.addEventListener('mouseenter', () =>
         this.events.emit('sound', 'button_hover'),
       );
     });
@@ -86,6 +68,7 @@ export class UIManager {
       this.pauseMenuEl,
       this.loadingScreenEl,
       this.gameOverMenuEl,
+      this.missionCompleteMenuEl,
     ].forEach((panel) => panel?.classList.remove('active'));
   }
 
