@@ -7,3 +7,5 @@ export const ENEMY_DESPAWN_MARGIN = 200;
 export const ENEMY_SPAWN_MARGIN = 100;
 export const ENEMY_SPAWN_INTERVAL = 2; // seconds
 export const ENEMY_HIT_INVINCIBILITY_DURATION = 1.5; // seconds
+
+export const PUSHBACK_DECAY = 800;

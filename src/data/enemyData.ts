@@ -10,6 +10,8 @@ export type EnemyData = {
   behaviourType: BehaviourType;
   color: string;
   image: string;
+  pushbackForce: number;
+  pushbackImmune: boolean;
 };
 
 export const enemyData: { [type: string]: EnemyData } = {
@@ -23,7 +25,9 @@ export const enemyData: { [type: string]: EnemyData } = {
     behaviourType: 'drifter',
     color: '#ff4444',
     image: 'enemy_drifter',
-  } satisfies EnemyData,
+    pushbackForce: 0,
+    pushbackImmune: true,
+  },
   seeker: {
     width: 38,
     height: 25,
@@ -34,5 +38,7 @@ export const enemyData: { [type: string]: EnemyData } = {
     behaviourType: 'seek',
     color: '#ff8844',
     image: 'enemy_seeker',
-  } satisfies EnemyData,
+    pushbackForce: 580,
+    pushbackImmune: false,
+  },
 };

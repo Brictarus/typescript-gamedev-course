@@ -7,6 +7,7 @@ export const playerData = {
   image: 'player',
   maxHealth: 12,
   invincibilityDuration: 2, // seconds
+  pushbackForce: 520,
 };
 
 export const missionData = {

@@ -5,6 +5,7 @@ import {
   ENEMY_HIT_INVINCIBILITY_DURATION,
   GAME_HEIGHT,
   GAME_WIDTH,
+  PUSHBACK_DECAY,
 } from '../core/constants.ts';
 import type { PoolableObject } from '../utils/ObjectPooler.ts';
 import type { Behaviour } from './behaviours/Behaviour.ts';
@@ -34,6 +35,9 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   invincible: boolean;
   invincibilityTimer: number;
 
+  private pushVx: number;
+  private pushVy: number;
+
   constructor(data: EnemyData, behaviour: Behaviour) {
     this.data = data;
     this.behaviour = behaviour;
@@ -53,6 +57,17 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
     this.invincible = false;
     this.invincibilityTimer = 0;
+
+    this.pushVx = 0;
+    this.pushVy = 0;
+  }
+
+  centerX() {
+    return this.x + this.width / 2;
+  }
+
+  centerY() {
+    return this.y + this.height / 2;
   }
 
   spawn(x: number, y: number) {
@@ -71,6 +86,9 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.facingLeft = false;
     this.health = this.data.health;
     this.behaviour.reset?.();
+
+    this.pushVx = 0;
+    this.pushVy = 0;
   }
 
   update(deltaTime: number, { player }: EnemyUpdateContext) {
@@ -94,9 +112,32 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
       return;
     }
 
+    if (this.pushVx !== 0 || this.pushVy !== 0) {
+      this.x += this.pushVx * deltaTime;
+      this.y += this.pushVy * deltaTime;
+
+      const speed = Math.sqrt(
+        this.pushVx * this.pushVx + this.pushVy * this.pushVy,
+      );
+      const decay = PUSHBACK_DECAY * deltaTime;
+      if (speed <= decay) {
+        this.pushVx = 0;
+        this.pushVy = 0;
+      } else {
+        const ratio = (speed - decay) / speed;
+        this.pushVx *= ratio;
+        this.pushVy *= ratio;
+      }
+    }
+
     const oldX = this.x;
     this.behaviour.update(deltaTime, this, player);
     this.facingLeft = this.x < oldX;
+  }
+
+  applyPushback(directionX: number, directionY: number, force: number) {
+    this.pushVx = directionX * force;
+    this.pushVy = directionY * force;
   }
 
   takeDamage(amount: number) {
