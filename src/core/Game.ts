@@ -40,7 +40,7 @@ export class Game {
 
     this.events = new EventEmitter<Events>();
     this.imageManager = new ImageManager();
-    this.audioManager = new AudioManager();
+    this.audioManager = new AudioManager(this.events);
     this.renderSystem = new RenderSystem(this.canvas, this.imageManager);
     this.uiManager = new UIManager(this.events);
     this.enemyManager = new EnemyManager();
@@ -70,8 +70,6 @@ export class Game {
       }),
     ]);
 
-    this.events.on('sound', (name) => this.audioManager.play(name));
-
     this.events.on('game:start', () => this.startGame());
     this.events.on('game:pause', () => this.pause());
     this.events.on('game:resume', () => this.resume());
@@ -80,7 +78,6 @@ export class Game {
     this.events.on('enemy:died', () => {
       this.enemiesKilled++;
       this.events.emit('enemy:killCount', this.enemiesKilled);
-      this.checkMissionConditions();
     });
 
     this.events.on('player:damaged', ({ health, maxHealth }) => {
@@ -106,9 +103,9 @@ export class Game {
     if (this.state !== 'playing') return;
 
     this.player.update(deltaTime, this.keys);
+    this.collisionManager.update(this.player, activeEnemies);
     this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
-    this.collisionManager.update(this.player, activeEnemies);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {

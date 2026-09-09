@@ -1,14 +1,22 @@
 import { audioData } from '../data/audioData.ts';
+import type { GameEventEmitter } from '../core/Events.ts';
 
 type SoundData = {
   audio: HTMLAudioElement;
   loaded: boolean;
 };
 export class AudioManager {
-  private sounds: { [name: string]: SoundData };
+  private readonly sounds: { [name: string]: SoundData };
+  private readonly events: GameEventEmitter;
 
-  constructor() {
+  constructor(events: GameEventEmitter) {
+    this.events = events;
     this.sounds = {};
+    this.registerEvents();
+  }
+
+  private registerEvents() {
+    this.events.on('sound', (name) => this.play(name));
   }
 
   private load(name: string, path: string): Promise<void> {
