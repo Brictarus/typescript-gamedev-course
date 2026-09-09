@@ -37,12 +37,14 @@ export class CollisionManager {
 
       const enemyDamageApplied = enemy.takeDamage(player.collisionDamage);
       if (enemyDamageApplied) {
-        this.events.emit('enemy:damaged', enemy);
         if (enemy.isDead()) {
           enemy.active = false;
           this.events.emit('enemy:died', enemy);
-        } else if (!enemy.data.pushbackImmune) {
-          enemy.applyPushback(-nx, -ny, enemy.data.pushbackForce);
+        } else {
+          this.events.emit('enemy:damaged', enemy);
+          if (!enemy.data.pushbackImmune) {
+            enemy.applyPushback(-nx, -ny, enemy.data.pushbackForce);
+          }
         }
       }
       const playerDamageApplied = player.takeDamage(enemy.damage);

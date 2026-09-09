@@ -17,6 +17,10 @@ export class AudioManager {
 
   private registerEvents() {
     this.events.on('sound', (name) => this.play(name));
+    this.events.on('enemy:damaged', (enemy) =>
+      this.play(enemy.data.sounds.hit),
+    );
+    this.events.on('enemy:died', (enemy) => this.play(enemy.data.sounds.death));
   }
 
   private load(name: string, path: string): Promise<void> {
