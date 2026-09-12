@@ -20,6 +20,7 @@ export class Player {
   pushbackForce: number;
   private pushVx: number;
   private pushVy: number;
+  image: string;
 
   constructor() {
     this.width = playerData.width;
@@ -32,6 +33,7 @@ export class Player {
     this.speed = playerData.speed;
     this.maxHealth = playerData.maxHealth;
     this.health = this.maxHealth;
+    this.image = playerData.image;
     this.invincibilityDuration = playerData.invincibilityDuration;
     this.invincible = false;
     this.invincibilityTimer = 0;

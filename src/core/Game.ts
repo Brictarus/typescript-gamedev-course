@@ -38,6 +38,7 @@ export class Game {
 
   private enemiesKilled: number;
   private debug: boolean;
+  private missionCompleted: boolean;
 
   constructor() {
     this.debug = false;
@@ -62,6 +63,7 @@ export class Game {
     this.time = 0;
     this.enemiesKilled = 0;
     this.state = 'menu';
+    this.missionCompleted = false;
 
     this.init();
   }
@@ -171,6 +173,7 @@ export class Game {
     this.uiManager.hideAllPanels();
     this.time = 0;
     this.enemiesKilled = 0;
+    this.missionCompleted = false;
     this.uiManager.showHud();
 
     this.player.reset();
@@ -238,11 +241,12 @@ export class Game {
   }
 
   private checkMissionConditions() {
-    if (this.state !== 'playing') return;
+    if (this.state !== 'playing' || this.missionCompleted) return;
     if (
       this.enemiesKilled >= missionData.killCount ||
       this.time >= missionData.surviveTime
     ) {
+      this.missionCompleted = true;
       this.events.emit('mission:complete');
     }
   }

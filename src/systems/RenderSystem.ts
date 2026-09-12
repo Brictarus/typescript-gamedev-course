@@ -67,7 +67,7 @@ export class RenderSystem {
   }
 
   private renderPlayer(player: Player) {
-    const playerImage = this.imageManager.get('player');
+    const playerImage = this.imageManager.get(player.image);
 
     if (player.invincible) {
       this.ctx.globalAlpha =
