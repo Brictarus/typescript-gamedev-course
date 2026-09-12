@@ -2,6 +2,8 @@ import type { PoolableObject } from '../utils/ObjectPooler.ts';
 import type { ParticleBehaviour } from './behaviours/particle/ParticleBehaviour.ts';
 import type { ParticleData } from '../data/particleData.ts';
 
+import type { ParticleSpawnOptions } from '../managers/ParticleSpawnOptions.ts';
+
 export type ParticleUpdateContext = void;
 
 export class Particle implements PoolableObject<ParticleUpdateContext> {
@@ -11,9 +13,9 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
   vy: number;
   private lifetime: number;
   private age: number;
-  private size: number;
+  size: number;
   private baseSize: number;
-  private color: string;
+  color: string;
   gravity: {
     x: number;
     y: number;
@@ -66,22 +68,30 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     angle: number,
     speed: number,
     behaviour: ParticleBehaviour,
+    options: ParticleSpawnOptions | undefined,
   ) {
-    console.log('particle spawned', ...arguments);
     this.active = true;
     this.x = x;
     this.y = y;
     this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle);
+    this.vy = Math.sin(angle) * speed;
     this.lifetime = data.lifetime;
     this.age = 0;
     this.size = data.size;
     this.baseSize = data.size;
-    this.color = data.color;
+    this.color = options?.color ?? data.color;
     this.gravity = {
       x: data.gravity.x,
       y: data.gravity.y,
     };
     this.behaviour = behaviour;
+  }
+
+  centerX() {
+    return this.x + this.size / 2;
+  }
+
+  centerY() {
+    return this.y + this.size / 2;
   }
 }

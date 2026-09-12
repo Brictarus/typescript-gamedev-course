@@ -133,6 +133,7 @@ export class Game {
       this.state,
       this.player,
       activeEnemies,
+      this.particleManager.getActiveParticles(),
       this.debug,
     );
     window.requestAnimationFrame((t) => this.gameLoop(t));
