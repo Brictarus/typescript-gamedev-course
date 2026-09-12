@@ -25,7 +25,14 @@ export class ParticleManager {
       const type = enemy.data.particles.hit;
       this.spawnEffect(type, enemy.centerX(), enemy.centerY(), {
         color: enemy.data.color,
-        count: 3,
+        count: 5,
+      });
+    });
+    this.events.on('enemy:died', (enemy) => {
+      const type = enemy.data.particles.death;
+      this.spawnEffect(type, enemy.centerX(), enemy.centerY(), {
+        color: enemy.data.color,
+        count: 15,
       });
     });
   }
