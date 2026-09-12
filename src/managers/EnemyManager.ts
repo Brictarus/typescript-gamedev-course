@@ -2,7 +2,7 @@ import { Enemy, type EnemyUpdateContext } from '../entities/Enemy.ts';
 import { enemyData } from '../data/enemyData.ts';
 import type { Player } from '../entities/Player.ts';
 import { ObjectPooler } from '../utils/ObjectPooler.ts';
-import { BehaviourFactory } from '../entities/behaviours/BehaviourFactory.ts';
+import { EnemyBehaviourFactory } from '../entities/behaviours/enemy/EnemyBehaviourFactory.ts';
 
 export class EnemyManager {
   private readonly pools: {
@@ -16,7 +16,7 @@ export class EnemyManager {
     for (const type in enemyData) {
       this.pools[type] = new ObjectPooler<Enemy, EnemyUpdateContext>(() => {
         const data = enemyData[type];
-        const behaviour = BehaviourFactory.create(data.behaviourType);
+        const behaviour = EnemyBehaviourFactory.create(data.behaviourType);
         return new Enemy(data, behaviour);
       }, ENEMY_POOL_SIZE);
     }

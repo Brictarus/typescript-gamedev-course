@@ -1,4 +1,4 @@
-import type { BehaviourType } from '../entities/behaviours/BehaviourFactory.ts';
+import type { BehaviourType } from '../entities/behaviours/enemy/EnemyBehaviourFactory.ts';
 
 export type EnemyData = {
   width: number;

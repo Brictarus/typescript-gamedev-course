@@ -1,7 +1,7 @@
-import type { Behaviour } from './Behaviour.ts';
-import type { Enemy } from '../Enemy.ts';
+import type { EnemyBehaviour } from './EnemyBehaviour.ts';
+import type { Enemy } from '../../Enemy.ts';
 
-export class DrifBehaviour implements Behaviour {
+export class DrifBehaviour implements EnemyBehaviour {
   private angle: number;
   private changeTimer: number;
   private changeInterval: number;
