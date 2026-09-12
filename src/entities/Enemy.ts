@@ -87,6 +87,9 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.health = this.data.health;
     this.behaviour.reset?.();
 
+    this.invincible = false;
+    this.invincibilityTimer = 0;
+
     this.pushVx = 0;
     this.pushVy = 0;
   }
