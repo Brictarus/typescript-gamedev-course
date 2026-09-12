@@ -11,8 +11,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
   y: number;
   vx: number;
   vy: number;
-  private lifetime: number;
-  private age: number;
+  lifetime: number;
+  age: number;
   size: number;
   private baseSize: number;
   color: string;
@@ -22,6 +22,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
   };
   active: boolean;
   private behaviour: ParticleBehaviour | undefined;
+  fade: boolean;
+  private shrink: boolean;
 
   constructor() {
     this.active = false;
@@ -33,6 +35,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     this.age = 0;
     this.size = 4;
     this.baseSize = 4;
+    this.fade = false;
+    this.shrink = false;
     this.color = '#fff';
     this.gravity = {
       x: 0,
@@ -48,6 +52,10 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     if (this.age >= this.lifetime) {
       this.active = false;
       return;
+    }
+
+    if (this.shrink) {
+      this.size = this.baseSize * (1 - this.age / this.lifetime);
     }
 
     this.behaviour?.update(this, deltaTime);
@@ -79,6 +87,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     this.age = 0;
     this.size = data.size;
     this.baseSize = data.size;
+    this.fade = data.fade;
+    this.shrink = data.shrink;
     this.color = options?.color ?? data.color;
     this.gravity = {
       x: data.gravity.x,

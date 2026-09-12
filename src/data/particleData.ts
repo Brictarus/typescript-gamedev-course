@@ -4,6 +4,8 @@ export type ParticleData = {
   speed: number;
   lifetime: number;
   size: number;
+  fade: boolean;
+  shrink: boolean;
   gravity: { x: number; y: number };
   behaviourType: string;
 };
@@ -14,7 +16,9 @@ export const particleData: { [key: string]: ParticleData } = {
     color: '#fff',
     speed: 100,
     lifetime: 0.5,
-    size: 10,
+    size: 20,
+    fade: true,
+    shrink: true,
     gravity: { x: 0, y: 0 },
     behaviourType: 'radial',
   },

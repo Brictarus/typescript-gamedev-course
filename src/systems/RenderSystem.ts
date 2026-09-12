@@ -147,6 +147,9 @@ export class RenderSystem {
   private renderParticles(particles: Particle[]) {
     particles.forEach((particle) => {
       if (!particle.active) return;
+      if (particle.fade) {
+        this.ctx.globalAlpha = 1 - particle.age / particle.lifetime;
+      }
       this.ctx.fillStyle = particle.color;
       this.ctx.fillRect(
         particle.centerX(),
@@ -154,6 +157,7 @@ export class RenderSystem {
         particle.size,
         particle.size,
       );
+      this.ctx.globalAlpha = 1;
     });
   }
 
