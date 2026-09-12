@@ -13,6 +13,7 @@ import { CollisionManager } from '../managers/CollisionManager.ts';
 import { CollisionSystem } from '../systems/CollisionSystem.ts';
 import type { Enemy } from '../entities/Enemy.ts';
 import { missionData } from '../data/playerData.ts';
+import { ParticleManager } from '../managers/ParticleManager.ts';
 
 export type GameState =
   'menu' | 'playing' | 'paused' | 'gameOver' | 'missionComplete';
@@ -31,11 +32,13 @@ export class Game {
   private readonly renderSystem: RenderSystem;
   private readonly enemyManager: EnemyManager;
   private readonly collisionManager: CollisionManager;
+  private readonly particleManager: ParticleManager;
   private readonly enemySpawner: EnemySpawner;
   private state: GameState;
-  private enemiesKilled: number;
 
+  private enemiesKilled: number;
   private debug: boolean;
+  private missionCompleted: boolean;
 
   constructor() {
     this.debug = false;
@@ -52,6 +55,7 @@ export class Game {
       new CollisionSystem(),
       this.events,
     );
+    this.particleManager = new ParticleManager(this.events);
 
     this.player = new Player();
     this.keys = {};
@@ -59,6 +63,7 @@ export class Game {
     this.time = 0;
     this.enemiesKilled = 0;
     this.state = 'menu';
+    this.missionCompleted = false;
 
     this.init();
   }
@@ -109,6 +114,7 @@ export class Game {
     this.collisionManager.update(this.player, activeEnemies);
     this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
+    this.particleManager.update(deltaTime);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -129,6 +135,7 @@ export class Game {
       this.state,
       this.player,
       activeEnemies,
+      this.particleManager.getActiveParticles(),
       this.debug,
     );
     window.requestAnimationFrame((t) => this.gameLoop(t));
@@ -166,10 +173,12 @@ export class Game {
     this.uiManager.hideAllPanels();
     this.time = 0;
     this.enemiesKilled = 0;
+    this.missionCompleted = false;
     this.uiManager.showHud();
 
     this.player.reset();
     this.enemyManager.reset();
+    this.particleManager.reset();
     this.enemySpawner.reset();
 
     this.uiManager.updateHealth(this.player.health, this.player.maxHealth);
@@ -232,11 +241,12 @@ export class Game {
   }
 
   private checkMissionConditions() {
-    if (this.state !== 'playing') return;
+    if (this.state !== 'playing' || this.missionCompleted) return;
     if (
       this.enemiesKilled >= missionData.killCount ||
       this.time >= missionData.surviveTime
     ) {
+      this.missionCompleted = true;
       this.events.emit('mission:complete');
     }
   }

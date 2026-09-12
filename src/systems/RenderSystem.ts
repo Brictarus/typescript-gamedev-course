@@ -3,6 +3,7 @@ import type { Player } from '../entities/Player.ts';
 import { ImageManager } from '../managers/ImageManager.ts';
 import type { GameState } from '../core/Game.ts';
 import type { Enemy } from '../entities/Enemy.ts';
+import type { Particle } from '../entities/Particle.ts';
 
 const FLASH_MIN_ALPHA = 0.2;
 const FLASH_ALPHA_RANGE = 0.8;
@@ -25,7 +26,13 @@ export class RenderSystem {
     this.ctx = this.canvas.getContext('2d')!;
   }
 
-  render(state: GameState, player: Player, enemies: Enemy[], debug: boolean) {
+  render(
+    state: GameState,
+    player: Player,
+    enemies: Enemy[],
+    particles: Particle[],
+    debug: boolean,
+  ) {
     if (state === 'menu') {
       this.renderMenuBackground();
     } else {
@@ -35,6 +42,7 @@ export class RenderSystem {
       this.renderGrid();
       this.renderEnemies(enemies);
       this.renderPlayer(player);
+      this.renderParticles(particles);
       if (debug) {
         this.renderDebugOverlay(player, enemies);
       }
@@ -59,7 +67,7 @@ export class RenderSystem {
   }
 
   private renderPlayer(player: Player) {
-    const playerImage = this.imageManager.get('player');
+    const playerImage = this.imageManager.get(player.image);
 
     if (player.invincible) {
       this.ctx.globalAlpha =
@@ -134,6 +142,23 @@ export class RenderSystem {
     this.ctx.fillRect(x, y, width, HEALTH_BAR_HEIGHT);
     this.ctx.fillStyle = HEALTH_BAR_FILL;
     this.ctx.fillRect(x, y, Math.ceil(width * percent), HEALTH_BAR_HEIGHT);
+  }
+
+  private renderParticles(particles: Particle[]) {
+    particles.forEach((particle) => {
+      if (!particle.active) return;
+      if (particle.fade) {
+        this.ctx.globalAlpha = 1 - particle.age / particle.lifetime;
+      }
+      this.ctx.fillStyle = particle.color;
+      this.ctx.fillRect(
+        particle.centerX(),
+        particle.centerY(),
+        particle.size,
+        particle.size,
+      );
+      this.ctx.globalAlpha = 1;
+    });
   }
 
   private renderDebugOverlay(player: Player, enemies: Enemy[]) {

@@ -8,7 +8,7 @@ import {
   PUSHBACK_DECAY,
 } from '../core/constants.ts';
 import type { PoolableObject } from '../utils/ObjectPooler.ts';
-import type { Behaviour } from './behaviours/Behaviour.ts';
+import type { EnemyBehaviour } from './behaviours/enemy/EnemyBehaviour.ts';
 
 export type EnemyUpdateContext = {
   player: Player;
@@ -30,7 +30,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   speed: number;
 
   active: boolean;
-  private behaviour: Behaviour;
+  private behaviour: EnemyBehaviour;
 
   invincible: boolean;
   invincibilityTimer: number;
@@ -38,7 +38,7 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   private pushVx: number;
   private pushVy: number;
 
-  constructor(data: EnemyData, behaviour: Behaviour) {
+  constructor(data: EnemyData, behaviour: EnemyBehaviour) {
     this.data = data;
     this.behaviour = behaviour;
 
@@ -75,10 +75,6 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.y = y;
     this.health = this.data.health;
     this.active = true;
-
-    console.log(
-      `Enemy spawned! Health = ${this.health}, Damage = ${this.damage}`,
-    );
   }
 
   reset() {
@@ -86,6 +82,9 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.facingLeft = false;
     this.health = this.data.health;
     this.behaviour.reset?.();
+
+    this.invincible = false;
+    this.invincibilityTimer = 0;
 
     this.pushVx = 0;
     this.pushVy = 0;

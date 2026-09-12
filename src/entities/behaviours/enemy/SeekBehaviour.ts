@@ -1,8 +1,8 @@
-import type { Enemy } from '../Enemy.ts';
-import type { Player } from '../Player.ts';
-import type { Behaviour } from './Behaviour.ts';
+import type { Enemy } from '../../Enemy.ts';
+import type { Player } from '../../Player.ts';
+import type { EnemyBehaviour } from './EnemyBehaviour.ts';
 
-export class SeekBehaviour implements Behaviour {
+export class SeekBehaviour implements EnemyBehaviour {
   update(deltaTime: number, enemy: Enemy, player: Player) {
     const dx = player.centerX() - enemy.centerX();
     const dy = player.centerY() - enemy.centerY();
