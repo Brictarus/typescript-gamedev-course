@@ -42,7 +42,7 @@ export const enemyData: { [type: string]: EnemyData } = {
     },
     particles: {
       hit: 'smoke',
-      death: 'sparks',
+      death: 'implosion',
     },
   },
   seeker: {
@@ -64,7 +64,7 @@ export const enemyData: { [type: string]: EnemyData } = {
     },
     particles: {
       hit: 'sparks',
-      death: 'sparks',
+      death: 'implosion',
     },
   },
 };

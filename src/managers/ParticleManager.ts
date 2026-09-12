@@ -61,7 +61,10 @@ export class ParticleManager {
         y,
         angle,
         speed,
-        ParticleBehaviourFactory.create(data.behaviourType),
+        ParticleBehaviourFactory.create(data.behaviourType, {
+          originX: x,
+          originY: y,
+        }),
         options,
       );
     }
