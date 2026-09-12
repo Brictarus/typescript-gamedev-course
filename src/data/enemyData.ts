@@ -17,8 +17,8 @@ export type EnemyData = {
     death: string;
   };
   particles: {
-    hit: string;
-    death: string;
+    hit: { type: string; count: number };
+    death: { type: string; count: number };
   };
 };
 
@@ -41,8 +41,8 @@ export const enemyData: { [type: string]: EnemyData } = {
       death: 'enemy_drifter_death',
     },
     particles: {
-      hit: 'smoke',
-      death: 'implosion',
+      hit: { type: 'smoke', count: 6 },
+      death: { type: 'implosion', count: 25 },
     },
   },
   seeker: {
@@ -63,8 +63,8 @@ export const enemyData: { [type: string]: EnemyData } = {
       death: 'enemy_seeker_death',
     },
     particles: {
-      hit: 'sparks',
-      death: 'implosion',
+      hit: { type: 'sparks', count: 10 },
+      death: { type: 'implosion', count: 17 },
     },
   },
 };

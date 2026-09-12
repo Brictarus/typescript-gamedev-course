@@ -22,17 +22,17 @@ export class ParticleManager {
 
   private registerEvents() {
     this.events.on('enemy:damaged', (enemy) => {
-      const type = enemy.data.particles.hit;
-      this.spawnEffect(type, enemy.centerX(), enemy.centerY(), {
+      const particleEffect = enemy.data.particles.hit;
+      this.spawnEffect(particleEffect.type, enemy.centerX(), enemy.centerY(), {
         color: enemy.data.color,
-        count: 5,
+        count: particleEffect.count,
       });
     });
     this.events.on('enemy:died', (enemy) => {
-      const type = enemy.data.particles.death;
-      this.spawnEffect(type, enemy.centerX(), enemy.centerY(), {
+      const particleEffect = enemy.data.particles.death;
+      this.spawnEffect(particleEffect.type, enemy.centerX(), enemy.centerY(), {
         color: enemy.data.color,
-        count: 15,
+        count: particleEffect.count,
       });
     });
   }
