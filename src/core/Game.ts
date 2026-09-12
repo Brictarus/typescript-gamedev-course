@@ -13,6 +13,7 @@ import { CollisionManager } from '../managers/CollisionManager.ts';
 import { CollisionSystem } from '../systems/CollisionSystem.ts';
 import type { Enemy } from '../entities/Enemy.ts';
 import { missionData } from '../data/playerData.ts';
+import { ParticleManager } from '../managers/ParticleManager.ts';
 
 export type GameState =
   'menu' | 'playing' | 'paused' | 'gameOver' | 'missionComplete';
@@ -31,10 +32,11 @@ export class Game {
   private readonly renderSystem: RenderSystem;
   private readonly enemyManager: EnemyManager;
   private readonly collisionManager: CollisionManager;
+  private readonly particleManager: ParticleManager;
   private readonly enemySpawner: EnemySpawner;
   private state: GameState;
-  private enemiesKilled: number;
 
+  private enemiesKilled: number;
   private debug: boolean;
 
   constructor() {
@@ -52,6 +54,7 @@ export class Game {
       new CollisionSystem(),
       this.events,
     );
+    this.particleManager = new ParticleManager(this.events);
 
     this.player = new Player();
     this.keys = {};
@@ -109,6 +112,7 @@ export class Game {
     this.collisionManager.update(this.player, activeEnemies);
     this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
+    this.particleManager.update(deltaTime);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -170,6 +174,7 @@ export class Game {
 
     this.player.reset();
     this.enemyManager.reset();
+    this.particleManager.reset();
     this.enemySpawner.reset();
 
     this.uiManager.updateHealth(this.player.health, this.player.maxHealth);

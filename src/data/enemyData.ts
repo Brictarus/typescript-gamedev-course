@@ -16,6 +16,10 @@ export type EnemyData = {
     hit: string;
     death: string;
   };
+  particles: {
+    hit: string;
+    death: string;
+  };
 };
 
 export const enemyData: { [type: string]: EnemyData } = {
@@ -31,9 +35,14 @@ export const enemyData: { [type: string]: EnemyData } = {
     image: 'enemy_drifter',
     pushbackForce: 0,
     pushbackImmune: true,
+
     sounds: {
       hit: 'enemy_drifter_hit',
       death: 'enemy_drifter_death',
+    },
+    particles: {
+      hit: 'sparks',
+      death: 'sparks',
     },
   },
   seeker: {
@@ -52,6 +61,10 @@ export const enemyData: { [type: string]: EnemyData } = {
     sounds: {
       hit: 'enemy_seeker_hit',
       death: 'enemy_seeker_death',
+    },
+    particles: {
+      hit: 'sparks',
+      death: 'sparks',
     },
   },
 };

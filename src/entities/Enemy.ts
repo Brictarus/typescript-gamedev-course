@@ -75,10 +75,6 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.y = y;
     this.health = this.data.health;
     this.active = true;
-
-    console.log(
-      `Enemy spawned! Health = ${this.health}, Damage = ${this.damage}`,
-    );
   }
 
   reset() {
