@@ -4,18 +4,18 @@ import { ObjectPooler } from '../utils/ObjectPooler.ts';
 import { particleData } from '../data/particleData.ts';
 import { ParticleBehaviourFactory } from '../entities/behaviours/particle/ParticleBehaviourFactory.ts';
 import type { ParticleSpawnOptions } from './ParticleSpawnOptions.ts';
-
-const PARTICLE_POOL_SIZE = 200;
-const particlePool = new ObjectPooler<Particle, ParticleUpdateContext>(
-  () => new Particle(),
-  PARTICLE_POOL_SIZE,
-);
+import { PARTICLE_POOL_SIZE } from '../core/constants.ts';
 
 export class ParticleManager {
   private readonly events: GameEventEmitter;
+  private readonly particlePool: ObjectPooler<Particle, ParticleUpdateContext>;
 
   constructor(events: GameEventEmitter) {
     this.events = events;
+    this.particlePool = new ObjectPooler<Particle, ParticleUpdateContext>(
+      () => new Particle(),
+      PARTICLE_POOL_SIZE,
+    );
 
     this.registerEvents();
   }
@@ -51,7 +51,7 @@ export class ParticleManager {
 
     const count = options.count ?? data.count;
     for (let i = 0; i < count; i++) {
-      const particle = particlePool.retrieve();
+      const particle = this.particlePool.retrieve();
       const angle = Math.random() * Math.PI * 2;
       const speed = data.speed * (0.5 + Math.random() * 0.5);
 
@@ -68,14 +68,14 @@ export class ParticleManager {
   }
 
   update(deltaTime: number): void {
-    particlePool.updateAll(deltaTime, undefined);
+    this.particlePool.updateAll(deltaTime, undefined);
   }
 
   reset() {
-    particlePool.releaseAll();
+    this.particlePool.releaseAll();
   }
 
   getActiveParticles(): Particle[] {
-    return particlePool.active;
+    return this.particlePool.active;
   }
 }
