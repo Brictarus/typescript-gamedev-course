@@ -27,6 +27,7 @@ export class CollisionManager {
 
   private checkPlayerVsEnemy(enemy: Enemy, player: Player) {
     if (!enemy.active) return;
+    if (enemy.isDead()) return;
     if (this.collisionSystem.checkCircleCircle(player, enemy)) {
       const dx = player.centerX() - enemy.centerX();
       const dy = player.centerY() - enemy.centerY();
@@ -38,7 +39,6 @@ export class CollisionManager {
       const enemyDamageApplied = enemy.takeDamage(player.collisionDamage);
       if (enemyDamageApplied) {
         if (enemy.isDead()) {
-          enemy.active = false;
           this.events.emit('enemy:died', enemy);
         } else {
           this.events.emit('enemy:damaged', enemy);

@@ -15,5 +15,6 @@ export class SeekBehaviour implements EnemyBehaviour {
       enemy.x += normalizedDx * enemy.speed * deltaTime;
       enemy.y += normalizedDy * enemy.speed * deltaTime;
     }
+    enemy.animator.play('move');
   }
 }

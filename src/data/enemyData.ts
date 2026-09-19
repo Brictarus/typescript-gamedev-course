@@ -1,4 +1,5 @@
 import type { BehaviourType } from '../entities/behaviours/enemy/EnemyBehaviourFactory.ts';
+import type { AnimationData } from '../utils/AnimatorController.ts';
 
 export type EnemyData = {
   width: number;
@@ -9,7 +10,6 @@ export type EnemyData = {
   collisionRadius: number;
   behaviourType: BehaviourType;
   color: string;
-  image: string;
   pushbackForce: number;
   pushbackImmune: boolean;
   sounds: {
@@ -20,19 +20,19 @@ export type EnemyData = {
     hit: { type: string; count: number };
     death: { type: string; count: number };
   };
+  animData: AnimationData;
 };
 
 export const enemyData: { [type: string]: EnemyData } = {
   drifter: {
-    width: 48,
+    width: 64,
     height: 48,
-    speed: 80,
+    speed: 30,
     health: 3,
     damage: 1,
     collisionRadius: 24,
-    behaviourType: 'seek',
+    behaviourType: 'drifter',
     color: '#ff4444',
-    image: 'enemy_drifter',
     pushbackForce: 0,
     pushbackImmune: true,
 
@@ -44,17 +44,55 @@ export const enemyData: { [type: string]: EnemyData } = {
       hit: { type: 'smoke', count: 6 },
       death: { type: 'implosion', count: 25 },
     },
+    animData: {
+      sheets: ['enemy_drifter_sheet', 'enemy_drifter_sheet2'],
+      frameWidth: 64,
+      frameHeight: 48,
+      initialState: 'idle',
+      states: {
+        idle: {
+          row: 0,
+          frameCount: 8,
+          frameInterval: 0.15,
+          startFrame: 0,
+          loop: true,
+        },
+        move: {
+          row: 1,
+          frameCount: 6,
+          frameInterval: 0.15,
+          startFrame: 0,
+          loop: true,
+        },
+        hit: {
+          row: 2,
+          frameCount: 6,
+          frameInterval: 0.15,
+          startFrame: 0,
+          loop: false,
+          locked: true,
+          next: 'idle',
+        },
+        death: {
+          row: 3,
+          frameCount: 8,
+          frameInterval: 0.1,
+          startFrame: 0,
+          loop: false,
+          locked: true,
+        },
+      },
+    },
   },
   seeker: {
-    width: 38,
-    height: 25,
+    width: 64,
+    height: 64,
     speed: 120,
     health: 2,
     damage: 1,
     collisionRadius: 14,
     behaviourType: 'seek',
     color: '#ff8844',
-    image: 'enemy_seeker',
     pushbackForce: 580,
     pushbackImmune: false,
 
@@ -65,6 +103,39 @@ export const enemyData: { [type: string]: EnemyData } = {
     particles: {
       hit: { type: 'sparks', count: 10 },
       death: { type: 'implosion', count: 17 },
+    },
+
+    animData: {
+      sheets: ['enemy_seeker_sheet', 'enemy_seeker_sheet2'],
+      frameWidth: 64,
+      frameHeight: 64,
+      initialState: 'move',
+      states: {
+        move: {
+          row: 0,
+          frameCount: 9,
+          frameInterval: 0.15,
+          startFrame: 0,
+          loop: true,
+        },
+        hit: {
+          row: 1,
+          frameCount: 7,
+          frameInterval: 0.15,
+          startFrame: 0,
+          loop: false,
+          locked: true,
+          next: 'move',
+        },
+        death: {
+          row: 2,
+          frameCount: 11,
+          frameInterval: 0.1,
+          startFrame: 0,
+          loop: false,
+          locked: true,
+        },
+      },
     },
   },
 };

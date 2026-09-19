@@ -34,11 +34,16 @@ export class ImageManager {
 
   async loadAll(): Promise<void> {
     const imagesEntries = [
-      ...Object.values(enemyData).map((enemy) => ({
-        name: enemy.image,
-        path: `/images/${enemy.image}.png`,
+      ...Object.values(enemyData).flatMap((enemy) =>
+        enemy.animData.sheets.map((sheet) => ({
+          name: sheet,
+          path: `/images/${sheet}.png`,
+        })),
+      ),
+      ...playerData.animData.sheets.map((sheet) => ({
+        name: sheet,
+        path: `/images/${sheet}.png`,
       })),
-      { name: playerData.image, path: `/images/${playerData.image}.png` },
     ];
     await Promise.all(
       imagesEntries.map(({ name, path }) =>

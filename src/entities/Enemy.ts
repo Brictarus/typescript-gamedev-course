@@ -9,6 +9,7 @@ import {
 } from '../core/constants.ts';
 import type { PoolableObject } from '../utils/ObjectPooler.ts';
 import type { EnemyBehaviour } from './behaviours/enemy/EnemyBehaviour.ts';
+import { AnimatorController } from '../utils/AnimatorController.ts';
 
 export type EnemyUpdateContext = {
   player: Player;
@@ -38,6 +39,8 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   private pushVx: number;
   private pushVy: number;
 
+  readonly animator: AnimatorController;
+
   constructor(data: EnemyData, behaviour: EnemyBehaviour) {
     this.data = data;
     this.behaviour = behaviour;
@@ -60,6 +63,8 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
 
     this.pushVx = 0;
     this.pushVy = 0;
+
+    this.animator = new AnimatorController(data.animData);
   }
 
   centerX() {
@@ -71,10 +76,12 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   }
 
   spawn(x: number, y: number) {
+    this.reset();
+
     this.x = x;
     this.y = y;
-    this.health = this.data.health;
     this.active = true;
+    this.animator.reset(this.data.animData.initialState);
   }
 
   reset() {
@@ -93,11 +100,14 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
   update(deltaTime: number, { player }: EnemyUpdateContext) {
     if (!this.active) return;
 
-    if (this.invincible) {
-      this.invincibilityTimer -= deltaTime;
-      if (this.invincibilityTimer <= 0) {
-        this.invincible = false;
-        this.invincibilityTimer = 0;
+    this.updatePushback(deltaTime);
+    this.updateInvincibility(deltaTime);
+
+    if (this.animator.is('death')) {
+      this.animator.update(deltaTime);
+      if (this.animator.finished) {
+        this.active = false;
+        return;
       }
     }
 
@@ -111,6 +121,26 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
       return;
     }
 
+    if (!this.animator.is('hit')) {
+      const oldX = this.x;
+      this.behaviour.update(deltaTime, this, player);
+      this.facingLeft = this.x < oldX;
+    }
+
+    this.animator.update(deltaTime);
+  }
+
+  private updateInvincibility(deltaTime: number) {
+    if (this.invincible) {
+      this.invincibilityTimer -= deltaTime;
+      if (this.invincibilityTimer <= 0) {
+        this.invincible = false;
+        this.invincibilityTimer = 0;
+      }
+    }
+  }
+
+  private updatePushback(deltaTime: number) {
     if (this.pushVx !== 0 || this.pushVy !== 0) {
       this.x += this.pushVx * deltaTime;
       this.y += this.pushVy * deltaTime;
@@ -128,10 +158,6 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
         this.pushVy *= ratio;
       }
     }
-
-    const oldX = this.x;
-    this.behaviour.update(deltaTime, this, player);
-    this.facingLeft = this.x < oldX;
   }
 
   applyPushback(directionX: number, directionY: number, force: number) {
@@ -145,10 +171,13 @@ export class Enemy implements PoolableObject<EnemyUpdateContext> {
     this.health = Math.max(0, this.health - amount);
     this.invincible = true;
     this.invincibilityTimer = ENEMY_HIT_INVINCIBILITY_DURATION;
+
+    this.animator.play(this.health <= 0 ? 'death' : 'hit', { force: true });
+
     return true;
   }
 
   isDead() {
-    return this.health <= 0;
+    return this.animator.is('death');
   }
 }
