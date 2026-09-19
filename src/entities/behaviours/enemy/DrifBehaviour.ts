@@ -50,6 +50,7 @@ export class DrifBehaviour implements EnemyBehaviour {
       enemy.x += dx * enemy.speed * deltaTime;
       enemy.y += dy * enemy.speed * deltaTime;
     }
+    enemy.animator.play(this.idling ? 'idle' : 'move');
   }
 
   reset(): void {

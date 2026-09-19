@@ -67,8 +67,6 @@ export class RenderSystem {
   }
 
   private renderPlayer(player: Player) {
-    const playerImage = this.imageManager.get(player.image);
-
     if (player.invincible) {
       this.ctx.globalAlpha =
         FLASH_MIN_ALPHA +
@@ -76,14 +74,28 @@ export class RenderSystem {
           Math.abs(Math.sin(player.invincibilityTimer * FLASH_SPEED));
     }
 
-    if (playerImage) {
-      this.ctx.drawImage(playerImage, player.x, player.y);
+    const frame = player.animator.getCurrentFrame();
+    const sheetImage = frame?.sheet ? this.imageManager.get(frame.sheet) : null;
+
+    if (frame && sheetImage) {
+      this.ctx.drawImage(
+        sheetImage,
+        frame.sourceX,
+        frame.sourceY,
+        frame.sourceWidth,
+        frame.sourceHeight,
+        player.x,
+        player.y,
+        player.width,
+        player.height,
+      );
     } else {
       this.ctx.fillStyle = '#1a1a2e';
       this.ctx.fillRect(player.x, player.y, player.width, player.height);
       this.ctx.strokeStyle = 'white';
       this.ctx.strokeRect(player.x, player.y, player.width, player.height);
     }
+
     this.ctx.globalAlpha = 1;
   }
 
@@ -94,30 +106,50 @@ export class RenderSystem {
 
   private renderEnemies(enemies: Enemy[]) {
     enemies.forEach((enemy) => {
-      const enemyImage = this.imageManager.get(enemy.data.image);
+      // const enemyImage = this.imageManager.get(enemy.data.image);
+      const frame = enemy.animator.getCurrentFrame();
+      const sheetImage = frame?.sheet
+        ? this.imageManager.get(frame.sheet)
+        : null;
 
-      if (enemy.invincible) {
+      if (enemy.invincible && !enemy.isDead()) {
         this.ctx.globalAlpha =
           FLASH_MIN_ALPHA +
           FLASH_ALPHA_RANGE *
             Math.abs(Math.sin(enemy.invincibilityTimer * FLASH_SPEED));
       }
 
-      if (enemyImage) {
+      if (frame && sheetImage) {
         this.ctx.save();
+
         if (enemy.facingLeft) {
           this.ctx.translate(enemy.x + enemy.width, enemy.y);
           this.ctx.scale(-1, 1);
-          this.ctx.drawImage(enemyImage, 0, 0, enemy.width, enemy.height);
+          this.ctx.drawImage(
+            sheetImage,
+            frame.sourceX,
+            frame.sourceY,
+            frame.sourceWidth,
+            frame.sourceHeight,
+            0,
+            0,
+            enemy.width,
+            enemy.height,
+          );
         } else {
           this.ctx.drawImage(
-            enemyImage,
+            sheetImage,
+            frame.sourceX,
+            frame.sourceY,
+            frame.sourceWidth,
+            frame.sourceHeight,
             enemy.x,
             enemy.y,
             enemy.width,
             enemy.height,
           );
         }
+
         this.ctx.restore();
       } else {
         this.ctx.fillStyle = enemy.data.color;
@@ -125,7 +157,7 @@ export class RenderSystem {
       }
       this.ctx.globalAlpha = 1;
 
-      if (enemy.health < enemy.data.health) {
+      if (enemy.health < enemy.data.health && !enemy.isDead()) {
         this.renderEnemyHealthBar(enemy);
       }
     });

@@ -1,6 +1,7 @@
 import { GAME_HEIGHT, GAME_WIDTH, PUSHBACK_DECAY } from '../core/constants.ts';
 import type { Keys } from '../systems/input/Keys.ts';
 import { playerData } from '../data/playerData.ts';
+import { AnimatorController } from '../utils/AnimatorController.ts';
 
 export class Player {
   x: number;
@@ -20,7 +21,8 @@ export class Player {
   pushbackForce: number;
   private pushVx: number;
   private pushVy: number;
-  image: string;
+
+  readonly animator: AnimatorController;
 
   constructor() {
     this.width = playerData.width;
@@ -33,7 +35,7 @@ export class Player {
     this.speed = playerData.speed;
     this.maxHealth = playerData.maxHealth;
     this.health = this.maxHealth;
-    this.image = playerData.image;
+
     this.invincibilityDuration = playerData.invincibilityDuration;
     this.invincible = false;
     this.invincibilityTimer = 0;
@@ -42,6 +44,8 @@ export class Player {
     this.pushbackForce = playerData.pushbackForce;
     this.pushVx = 0;
     this.pushVy = 0;
+
+    this.animator = new AnimatorController(playerData.animData);
   }
 
   centerX() {
@@ -63,9 +67,52 @@ export class Player {
 
     this.pushVx = 0;
     this.pushVy = 0;
+
+    this.animator.reset(playerData.animData.initialState);
   }
 
   update(deltaTime: number, keys: Keys) {
+    this.updatePushback(deltaTime);
+    this.updateInvincibility(deltaTime);
+
+    if (!this.animator.is('death') && !this.animator.is('hit')) {
+      let dx = 0;
+      let dy = 0;
+
+      if (keys['z'] || keys['arrowup']) dy -= 1;
+      if (keys['s'] || keys['arrowdown']) dy += 1;
+      if (keys['q'] || keys['arrowleft']) dx -= 1;
+      if (keys['d'] || keys['arrowright']) dx += 1;
+
+      if (dx || dy) {
+        const length = Math.sqrt(dx * dx + dy * dy);
+        dx /= length;
+        dy /= length;
+
+        this.x += dx * this.speed * this.speedMultiplier * deltaTime;
+        this.y += dy * this.speed * this.speedMultiplier * deltaTime;
+      }
+
+      let intent;
+      if (keys['z'] || keys['arrowup']) intent = 'moveUp';
+      else if (keys['q'] || keys['arrowleft']) intent = 'moveLeft';
+      else if (keys['s'] || keys['arrowdown']) intent = 'moveDown';
+      else if (keys['d'] || keys['arrowright']) intent = 'moveRight';
+      else intent = 'idle';
+
+      this.animator.play(intent);
+    }
+
+    this.animator.update(deltaTime);
+    this.clampToBounds();
+  }
+
+  private clampToBounds() {
+    this.x = Math.max(0, Math.min(GAME_WIDTH - this.width, this.x));
+    this.y = Math.max(0, Math.min(GAME_HEIGHT - this.height, this.y));
+  }
+
+  private updateInvincibility(deltaTime: number) {
     if (this.invincible) {
       this.invincibilityTimer -= deltaTime;
       if (this.invincibilityTimer <= 0) {
@@ -73,7 +120,9 @@ export class Player {
         this.invincibilityTimer = 0;
       }
     }
+  }
 
+  private updatePushback(deltaTime: number) {
     if (this.pushVx !== 0 || this.pushVy !== 0) {
       this.x += this.pushVx * deltaTime;
       this.y += this.pushVy * deltaTime;
@@ -91,26 +140,6 @@ export class Player {
         this.pushVy *= ratio;
       }
     }
-
-    let dx = 0;
-    let dy = 0;
-
-    if (keys['z'] || keys['arrowup']) dy -= 1;
-    if (keys['s'] || keys['arrowdown']) dy += 1;
-    if (keys['q'] || keys['arrowleft']) dx -= 1;
-    if (keys['d'] || keys['arrowright']) dx += 1;
-
-    if (dx || dy) {
-      const length = Math.sqrt(dx * dx + dy * dy);
-      dx /= length;
-      dy /= length;
-
-      this.x += dx * this.speed * this.speedMultiplier * deltaTime;
-      this.y += dy * this.speed * this.speedMultiplier * deltaTime;
-    }
-
-    this.x = Math.max(0, Math.min(GAME_WIDTH - this.width, this.x));
-    this.y = Math.max(0, Math.min(GAME_HEIGHT - this.height, this.y));
   }
 
   applyPushback(directionX: number, directionY: number, force: number) {
@@ -124,10 +153,17 @@ export class Player {
     this.health = Math.max(0, this.health - amount);
     this.invincible = true;
     this.invincibilityTimer = this.invincibilityDuration;
+
+    this.animator.play(this.health <= 0 ? 'death' : 'hit', { force: true });
+
     return true;
   }
 
   isDead() {
-    return this.health <= 0;
+    return this.animator.is('death');
+  }
+
+  isDeathFinished() {
+    return this.isDead() && this.animator.finished;
   }
 }

@@ -94,7 +94,6 @@ export class Game {
     });
     this.events.on('player:died', () => {
       this.events.emit('sound', 'game_over');
-      this.gameOver();
     });
 
     this.uiManager.showPanel('mainMenu');
@@ -111,10 +110,16 @@ export class Game {
     if (this.state !== 'playing') return;
 
     this.player.update(deltaTime, this.keys);
+    this.particleManager.update(deltaTime);
+
+    if (this.player.isDeathFinished()) {
+      this.gameOver();
+      return;
+    }
+
     this.collisionManager.update(this.player, activeEnemies);
     this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
-    this.particleManager.update(deltaTime);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
