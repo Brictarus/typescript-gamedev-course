@@ -90,10 +90,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     this.fade = data.fade;
     this.shrink = data.shrink;
     this.color = options?.color ?? data.color;
-    this.gravity = {
-      x: data.gravity.x,
-      y: data.gravity.y,
-    };
+    this.gravity.x = data.gravity.x;
+    this.gravity.y = data.gravity.y;
     this.behaviour = behaviour;
   }
 
