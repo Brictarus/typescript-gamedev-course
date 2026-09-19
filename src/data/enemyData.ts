@@ -30,7 +30,7 @@ export const enemyData: { [type: string]: EnemyData } = {
     health: 3,
     damage: 1,
     collisionRadius: 24,
-    behaviourType: 'seek',
+    behaviourType: 'drifter',
     color: '#ff4444',
     image: 'enemy_drifter',
     pushbackForce: 0,
