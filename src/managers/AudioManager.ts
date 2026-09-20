@@ -32,7 +32,7 @@ export class AudioManager {
         resolve();
       };
       audio.onerror = (e) => {
-        console.warn(`Audio load error: ${name} (will skip)`, e);
+        console.warn(`Audio failed: ${name} (will skip)`, e);
         resolve();
       };
       audio.src = path;
@@ -44,7 +44,7 @@ export class AudioManager {
     if (sound) {
       sound.audio.currentTime = 0;
       sound.audio.play().catch((err) => {
-        console.log(`Could not play ${name}`, err);
+        console.warn(`Could not play ${name}`, err);
       });
     }
   }

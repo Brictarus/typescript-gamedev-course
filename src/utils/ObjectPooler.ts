@@ -29,7 +29,6 @@ export class ObjectPooler<T extends PoolableObject<U>, U> {
       poolableObject = this.pool.pop()!;
     } else {
       poolableObject = this.factoryFn();
-      console.log('[DEV] Pool expanded, created new object');
     }
     this.#active.push(poolableObject);
 

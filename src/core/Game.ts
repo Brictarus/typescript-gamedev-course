@@ -69,13 +69,9 @@ export class Game {
   }
 
   private async init() {
-    const DEBUG_LOAD_DELAY = 1_000;
     await Promise.all([
       this.imageManager.loadAll(),
       this.audioManager.loadAll(),
-      new Promise((resolve) => {
-        return setTimeout(resolve, DEBUG_LOAD_DELAY);
-      }),
     ]);
 
     this.events.on('game:start', () => this.startGame());
