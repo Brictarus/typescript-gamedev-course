@@ -1,5 +1,6 @@
 import { enemyData } from '../data/enemyData.ts';
 import { playerData } from '../data/playerData.ts';
+import { particleData } from '../data/particleData.ts';
 
 type ImageData = {
   image: HTMLImageElement;
@@ -44,6 +45,12 @@ export class ImageManager {
         name: sheet,
         path: `/images/${sheet}.png`,
       })),
+      ...Object.values(particleData)
+        .filter((p) => p.shape === 'image')
+        .map((p) => ({
+          name: p.image,
+          path: `/images/${p.image}.png`,
+        })),
     ];
     await Promise.all(
       imagesEntries.map(({ name, path }) =>

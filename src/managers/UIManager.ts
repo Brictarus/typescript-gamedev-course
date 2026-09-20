@@ -1,6 +1,6 @@
 import type { GameEventEmitter } from '../core/Events.ts';
+import { missionData } from '../data/missionData.ts';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const panelsIds = [
   'mainMenu',
   'pauseMenu',
@@ -17,12 +17,10 @@ export class UIManager {
   private readonly hudEl: HTMLElement | null;
   private readonly timerEl: HTMLElement | null;
   private readonly healthBarFillEl: HTMLElement | null;
+  private readonly missionBriefingEl: HTMLElement | null;
+  private readonly killCounterEl: HTMLElement | null;
 
-  private readonly mainMenuEl: HTMLElement | null;
-  private readonly pauseMenuEl: HTMLElement | null;
-  private readonly loadingScreenEl: HTMLElement | null;
-  private readonly gameOverMenuEl: HTMLElement | null;
-  private readonly missionCompleteMenuEl: HTMLElement | null;
+  private readonly panels: Map<PanelId, HTMLElement | null>;
 
   private readonly buttonActions: { [key: string]: () => void } = {
     start: () => this.events.emit('game:start', undefined),
@@ -36,12 +34,12 @@ export class UIManager {
     this.hudEl = document.getElementById('hud');
     this.timerEl = document.getElementById('timer');
     this.healthBarFillEl = document.getElementById('healthBarFill');
+    this.missionBriefingEl = document.getElementById('missionBriefing');
+    this.killCounterEl = document.getElementById('killCounter');
 
-    this.mainMenuEl = document.getElementById('mainMenu');
-    this.pauseMenuEl = document.getElementById('pauseMenu');
-    this.loadingScreenEl = document.getElementById('loadingScreen');
-    this.gameOverMenuEl = document.getElementById('gameOverMenu');
-    this.missionCompleteMenuEl = document.getElementById('missionCompleteMenu');
+    this.panels = new Map<PanelId, HTMLElement | null>(
+      panelsIds.map((panelId) => [panelId, document.getElementById(panelId)]),
+    );
 
     this.setupEventListeners();
   }
@@ -60,22 +58,22 @@ export class UIManager {
         this.events.emit('sound', 'button_hover'),
       );
     });
+
+    this.events.on('enemy:killCount', (count) => this.updateKillCounter(count));
   }
 
   hideAllPanels() {
-    [
-      this.mainMenuEl,
-      this.pauseMenuEl,
-      this.loadingScreenEl,
-      this.gameOverMenuEl,
-      this.missionCompleteMenuEl,
-    ].forEach((panel) => panel?.classList.remove('active'));
+    this.panels.forEach((panel) => panel?.classList.remove('active'));
   }
 
   showPanel(panelId: PanelId) {
     this.hideAllPanels();
-    this[`${panelId}El`]?.classList.add('active');
-    document.getElementById(panelId)?.classList.add('active');
+    const panel = this.panels.get(panelId);
+    if (!panel) {
+      console.warn(`[UIManager] Unknown panel "${panelId}"`);
+      return;
+    }
+    panel.classList.add('active');
   }
 
   showHud() {
@@ -88,6 +86,7 @@ export class UIManager {
     if (this.hudEl) {
       this.hudEl.style.display = 'none';
     }
+    this.hideMissionBriefing();
   }
 
   updateTimer(time: number) {
@@ -100,7 +99,27 @@ export class UIManager {
 
   updateHealth(health: number, maxHealth: number) {
     if (!this.healthBarFillEl) return;
-    const percentage = Math.max(0, health / maxHealth);
+    const percentage = Math.min(1, Math.max(0, health / maxHealth));
     this.healthBarFillEl.style.setProperty('--health-pct', `${percentage}`);
+  }
+
+  showMissionBriefing() {
+    if (!this.missionBriefingEl) return;
+
+    this.missionBriefingEl.textContent = this.buildMissionBriefingText();
+    this.missionBriefingEl.classList.add('visible');
+  }
+
+  hideMissionBriefing() {
+    this.missionBriefingEl?.classList.remove('visible');
+  }
+
+  private buildMissionBriefingText() {
+    return `Destroy ${missionData.killCount} enemies or survive ${missionData.surviveTime} seconds`;
+  }
+
+  updateKillCounter(count: number) {
+    if (!this.killCounterEl) return;
+    this.killCounterEl.textContent = `${count} / ${missionData.killCount}`;
   }
 }

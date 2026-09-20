@@ -11,7 +11,7 @@ export const playerData = {
   pushbackForce: 520,
 
   animData: {
-    sheets: ['player_sheet', 'player_sheet2'],
+    sheets: ['player_sheet', 'player_sheet2', 'player_sheet3'],
     frameWidth: 64,
     frameHeight: 64,
     initialState: 'idle',
@@ -70,9 +70,4 @@ export const playerData = {
       },
     },
   } satisfies AnimationData,
-};
-
-export const missionData = {
-  surviveTime: 60, // seconds
-  killCount: 10,
 };

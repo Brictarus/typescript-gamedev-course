@@ -12,8 +12,8 @@ import type { Events, GameEventEmitter } from './Events.ts';
 import { CollisionManager } from '../managers/CollisionManager.ts';
 import { CollisionSystem } from '../systems/CollisionSystem.ts';
 import type { Enemy } from '../entities/Enemy.ts';
-import { missionData } from '../data/playerData.ts';
 import { ParticleManager } from '../managers/ParticleManager.ts';
+import { missionData } from '../data/missionData.ts';
 
 export type GameState =
   'menu' | 'playing' | 'paused' | 'gameOver' | 'missionComplete';
@@ -39,6 +39,7 @@ export class Game {
   private enemiesKilled: number;
   private debug: boolean;
   private missionCompleted: boolean;
+  private missionBriefingEndsAt: number | null;
 
   constructor() {
     this.debug = false;
@@ -64,18 +65,15 @@ export class Game {
     this.enemiesKilled = 0;
     this.state = 'menu';
     this.missionCompleted = false;
+    this.missionBriefingEndsAt = null;
 
     this.init();
   }
 
   private async init() {
-    const DEBUG_LOAD_DELAY = 1_000;
     await Promise.all([
       this.imageManager.loadAll(),
       this.audioManager.loadAll(),
-      new Promise((resolve) => {
-        return setTimeout(resolve, DEBUG_LOAD_DELAY);
-      }),
     ]);
 
     this.events.on('game:start', () => this.startGame());
@@ -89,7 +87,9 @@ export class Game {
     });
 
     this.events.on('player:damaged', ({ health, maxHealth }) => {
-      this.events.emit('sound', 'player_hurt');
+      if (!this.player.isDead()) {
+        this.events.emit('sound', 'player_hurt');
+      }
       this.uiManager.updateHealth(health, maxHealth);
     });
     this.events.on('player:died', () => {
@@ -111,15 +111,15 @@ export class Game {
 
     this.player.update(deltaTime, this.keys);
     this.particleManager.update(deltaTime);
+    this.enemyManager.update(deltaTime, this.player);
 
     if (this.player.isDeathFinished()) {
       this.gameOver();
       return;
     }
 
-    this.collisionManager.update(this.player, activeEnemies);
-    this.enemyManager.update(deltaTime, this.player);
     this.enemySpawner.update(deltaTime);
+    this.collisionManager.update(this.player, activeEnemies);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
@@ -130,12 +130,20 @@ export class Game {
     if (this.state === 'playing') {
       this.time += cappedDeltaTime;
       this.uiManager.updateTimer(this.time);
-      this.checkMissionConditions();
+
+      if (
+        this.missionBriefingEndsAt !== null &&
+        this.time >= this.missionBriefingEndsAt
+      ) {
+        this.uiManager.hideMissionBriefing();
+        this.missionBriefingEndsAt = null;
+      }
     }
 
     const activeEnemies = this.enemyManager.getActiveEnemies();
 
     this.update(cappedDeltaTime, activeEnemies);
+    this.checkMissionConditions();
     this.renderSystem.render(
       this.state,
       this.player,
@@ -150,14 +158,14 @@ export class Game {
     window.addEventListener('keydown', (e) => {
       this.keys[e.key.toLowerCase()] = true;
 
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.repeat) {
         if (this.state === 'playing') {
           this.events.emit('game:pause');
         } else if (this.state === 'paused') {
           this.events.emit('game:resume');
         }
       }
-      if (e.key === ',') {
+      if (e.key === ',' && !e.repeat) {
         this.debug = !this.debug;
       }
     });
@@ -176,10 +184,14 @@ export class Game {
     this.events.emit('sound', 'button_click');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
+    this.keys = {};
     this.time = 0;
     this.enemiesKilled = 0;
     this.missionCompleted = false;
     this.uiManager.showHud();
+    this.missionBriefingEndsAt = this.time + missionData.briefingDuration;
+    this.uiManager.showMissionBriefing();
+    this.uiManager.updateKillCounter(this.enemiesKilled);
 
     this.player.reset();
     this.enemyManager.reset();
@@ -230,6 +242,8 @@ export class Game {
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     this.canvas.style.margin = `${margin}px`;
+
+    this.renderSystem.applySettings();
   }
 
   private gameOver() {
@@ -246,7 +260,12 @@ export class Game {
   }
 
   private checkMissionConditions() {
-    if (this.state !== 'playing' || this.missionCompleted) return;
+    if (
+      this.state !== 'playing' ||
+      this.missionCompleted ||
+      this.player.isDead()
+    )
+      return;
     if (
       this.enemiesKilled >= missionData.killCount ||
       this.time >= missionData.surviveTime

@@ -6,7 +6,7 @@ const MOVE_DURATION = 7; // seconds
 const IDLE_DURATION_MIN = 2; // seconds
 const IDLE_DURATION_MAX = 5; // seconds
 
-export class DrifBehaviour implements EnemyBehaviour {
+export class DriftBehaviour implements EnemyBehaviour {
   private angle: number;
   private phaseTimer: number;
   private phaseDuration: number;
@@ -24,7 +24,10 @@ export class DrifBehaviour implements EnemyBehaviour {
   update(deltaTime: number, enemy: Enemy, player: Player): void {
     if (this.firstMove) {
       this.firstMove = false;
-      this.angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+      this.angle = Math.atan2(
+        player.centerY() - enemy.centerY(),
+        player.centerX() - enemy.centerX(),
+      );
       this.firstMove = false;
     }
 

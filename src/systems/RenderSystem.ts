@@ -24,6 +24,11 @@ export class RenderSystem {
     this.imageManager = imageManager;
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d')!;
+    this.applySettings();
+  }
+
+  applySettings() {
+    this.ctx.imageSmoothingEnabled = false;
   }
 
   render(
@@ -67,7 +72,7 @@ export class RenderSystem {
   }
 
   private renderPlayer(player: Player) {
-    if (player.invincible) {
+    if (player.invincible && !player.isDead()) {
       this.ctx.globalAlpha =
         FLASH_MIN_ALPHA +
         FLASH_ALPHA_RANGE *
@@ -182,15 +187,53 @@ export class RenderSystem {
       if (particle.fade) {
         this.ctx.globalAlpha = 1 - particle.age / particle.lifetime;
       }
-      this.ctx.fillStyle = particle.color;
-      this.ctx.fillRect(
+
+      switch (particle.shape) {
+        case 'circle':
+          this.drawCircleParticle(particle);
+          break;
+        case 'image':
+          this.drawImageParticle(particle);
+          break;
+        case 'rectangle':
+        default:
+          this.drawRectangleParticle(particle);
+          break;
+      }
+      this.ctx.globalAlpha = 1;
+    });
+  }
+
+  private drawRectangleParticle(particle: Particle) {
+    this.ctx.fillStyle = particle.color;
+    this.ctx.fillRect(
+      particle.centerX(),
+      particle.centerY(),
+      particle.size,
+      particle.size,
+    );
+  }
+
+  private drawCircleParticle(particle: Particle) {
+    this.ctx.fillStyle = particle.color;
+    this.ctx.beginPath();
+    this.ctx.arc(particle.x, particle.y, particle.size / 2, 0, Math.PI * 2);
+    this.ctx.fill();
+  }
+
+  private drawImageParticle(particle: Particle) {
+    const img = particle.image ? this.imageManager.get(particle.image) : null;
+    if (img) {
+      this.ctx.drawImage(
+        img,
         particle.centerX(),
         particle.centerY(),
         particle.size,
         particle.size,
       );
-      this.ctx.globalAlpha = 1;
-    });
+    } else {
+      this.drawRectangleParticle(particle);
+    }
   }
 
   private renderDebugOverlay(player: Player, enemies: Enemy[]) {

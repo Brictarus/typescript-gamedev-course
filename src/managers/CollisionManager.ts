@@ -42,7 +42,7 @@ export class CollisionManager {
           this.events.emit('enemy:died', enemy);
         } else {
           this.events.emit('enemy:damaged', enemy);
-          if (!enemy.data.pushbackImmune) {
+          if (enemy.data.pushbackTarget === 'enemy') {
             enemy.applyPushback(-nx, -ny, enemy.data.pushbackForce);
           }
         }
@@ -55,7 +55,7 @@ export class CollisionManager {
         });
         if (player.isDead()) {
           this.events.emit('player:died');
-        } else if (enemy.data.pushbackImmune) {
+        } else if (enemy.data.pushbackTarget === 'player') {
           player.applyPushback(nx, ny, player.pushbackForce);
         }
       }

@@ -4,7 +4,11 @@ import type { GameEventEmitter } from '../core/Events.ts';
 type SoundData = {
   audio: HTMLAudioElement;
   loaded: boolean;
+  channels: HTMLAudioElement[];
 };
+
+const MAX_CHANNELS_PER_SOUND = 4;
+
 export class AudioManager {
   private readonly sounds: { [name: string]: SoundData };
   private readonly events: GameEventEmitter;
@@ -26,13 +30,14 @@ export class AudioManager {
   private load(name: string, path: string): Promise<void> {
     return new Promise((resolve) => {
       const audio = new Audio();
-      this.sounds[name] = { audio, loaded: false };
+      this.sounds[name] = { audio, loaded: false, channels: [] };
       audio.onloadeddata = () => {
         this.sounds[name].loaded = true;
+        this.sounds[name].channels.push(audio);
         resolve();
       };
       audio.onerror = (e) => {
-        console.warn(`Audio load error: ${name} (will skip)`, e);
+        console.warn(`[AudioManager] Audio failed: ${name} (will skip)`, e);
         resolve();
       };
       audio.src = path;
@@ -40,13 +45,24 @@ export class AudioManager {
   }
 
   play(name: string) {
-    const sound = this.sounds[name]?.loaded ? this.sounds[name] : null;
-    if (sound) {
-      sound.audio.currentTime = 0;
-      sound.audio.play().catch((err) => {
-        console.log(`Could not play ${name}`, err);
-      });
+    const sound = this.sounds[name];
+    if (!sound?.loaded) return;
+
+    let channel = sound.channels.find((c) => c.paused);
+    if (!channel) {
+      if (sound.channels.length < MAX_CHANNELS_PER_SOUND) {
+        channel = sound.audio.cloneNode() as HTMLAudioElement;
+        sound.channels.push(channel);
+      } else {
+        channel = sound.channels.shift() as HTMLAudioElement;
+        sound.channels.push(channel!);
+      }
     }
+
+    channel.currentTime = 0;
+    channel.play().catch((err) => {
+      console.warn(`[AudioManager] Could not play ${name}`, err);
+    });
   }
 
   async loadAll(): Promise<void> {
