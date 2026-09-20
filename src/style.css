@@ -144,3 +144,22 @@ button:hover {
   text-shadow: 0 0 20px rgba(var(--color), 0.9);
   font-weight: 700;
 }
+
+#missionBriefing {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  color: rgb(var(--color));
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 20px rgba(var(--color), 0.9);
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  max-width: 99vw;
+}
+
+#missionBriefing.visible {
+  opacity: 1;
+}

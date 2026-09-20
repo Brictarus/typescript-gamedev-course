@@ -12,8 +12,8 @@ import type { Events, GameEventEmitter } from './Events.ts';
 import { CollisionManager } from '../managers/CollisionManager.ts';
 import { CollisionSystem } from '../systems/CollisionSystem.ts';
 import type { Enemy } from '../entities/Enemy.ts';
-import { missionData } from '../data/playerData.ts';
 import { ParticleManager } from '../managers/ParticleManager.ts';
+import { missionData } from '../data/missionData.ts';
 
 export type GameState =
   'menu' | 'playing' | 'paused' | 'gameOver' | 'missionComplete';
@@ -180,6 +180,7 @@ export class Game {
     this.enemiesKilled = 0;
     this.missionCompleted = false;
     this.uiManager.showHud();
+    this.uiManager.showMissionBriefing();
 
     this.player.reset();
     this.enemyManager.reset();

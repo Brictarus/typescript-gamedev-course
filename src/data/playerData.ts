@@ -71,8 +71,3 @@ export const playerData = {
     },
   } satisfies AnimationData,
 };
-
-export const missionData = {
-  surviveTime: 60, // seconds
-  killCount: 10,
-};

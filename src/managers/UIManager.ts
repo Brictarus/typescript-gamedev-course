@@ -1,4 +1,5 @@
 import type { GameEventEmitter } from '../core/Events.ts';
+import { missionData } from '../data/missionData.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const panelsIds = [
@@ -17,6 +18,7 @@ export class UIManager {
   private readonly hudEl: HTMLElement | null;
   private readonly timerEl: HTMLElement | null;
   private readonly healthBarFillEl: HTMLElement | null;
+  private readonly missionBriefingEl: HTMLElement | null;
 
   private readonly mainMenuEl: HTMLElement | null;
   private readonly pauseMenuEl: HTMLElement | null;
@@ -30,12 +32,15 @@ export class UIManager {
     returnToMenu: () => this.events.emit('game:returnToMenu', undefined),
   };
 
+  private missionBriefingTimeout: number | undefined;
+
   constructor(events: GameEventEmitter) {
     this.events = events;
 
     this.hudEl = document.getElementById('hud');
     this.timerEl = document.getElementById('timer');
     this.healthBarFillEl = document.getElementById('healthBarFill');
+    this.missionBriefingEl = document.getElementById('missionBriefing');
 
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
@@ -88,6 +93,8 @@ export class UIManager {
     if (this.hudEl) {
       this.hudEl.style.display = 'none';
     }
+    clearTimeout(this.missionBriefingTimeout);
+    this.hideMissionBriefing();
   }
 
   updateTimer(time: number) {
@@ -102,5 +109,24 @@ export class UIManager {
     if (!this.healthBarFillEl) return;
     const percentage = Math.max(0, health / maxHealth);
     this.healthBarFillEl.style.setProperty('--health-pct', `${percentage}`);
+  }
+
+  showMissionBriefing() {
+    if (!this.missionBriefingEl) return;
+
+    clearTimeout(this.missionBriefingTimeout);
+    this.missionBriefingEl.textContent = this.buildMissionBriefingText();
+    this.missionBriefingEl.classList.add('visible');
+    this.missionBriefingTimeout = setTimeout(() => {
+      this.hideMissionBriefing();
+    }, missionData.briefingDuration * 1000);
+  }
+
+  private hideMissionBriefing() {
+    this.missionBriefingEl?.classList.remove('visible');
+  }
+
+  private buildMissionBriefingText() {
+    return `Destroy ${missionData.killCount} enemies or survive ${missionData.surviveTime} seconds`;
   }
 }
