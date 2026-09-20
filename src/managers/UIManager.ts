@@ -19,6 +19,7 @@ export class UIManager {
   private readonly timerEl: HTMLElement | null;
   private readonly healthBarFillEl: HTMLElement | null;
   private readonly missionBriefingEl: HTMLElement | null;
+  private readonly killCounterEl: HTMLElement | null;
 
   private readonly mainMenuEl: HTMLElement | null;
   private readonly pauseMenuEl: HTMLElement | null;
@@ -41,6 +42,7 @@ export class UIManager {
     this.timerEl = document.getElementById('timer');
     this.healthBarFillEl = document.getElementById('healthBarFill');
     this.missionBriefingEl = document.getElementById('missionBriefing');
+    this.killCounterEl = document.getElementById('killCounter');
 
     this.mainMenuEl = document.getElementById('mainMenu');
     this.pauseMenuEl = document.getElementById('pauseMenu');
@@ -65,6 +67,8 @@ export class UIManager {
         this.events.emit('sound', 'button_hover'),
       );
     });
+
+    this.events.on('enemy:killCount', (count) => this.updateKillCounter(count));
   }
 
   hideAllPanels() {
@@ -128,5 +132,10 @@ export class UIManager {
 
   private buildMissionBriefingText() {
     return `Destroy ${missionData.killCount} enemies or survive ${missionData.surviveTime} seconds`;
+  }
+
+  updateKillCounter(count: number) {
+    if (!this.killCounterEl) return;
+    this.killCounterEl.textContent = `${count} / ${missionData.killCount}`;
   }
 }

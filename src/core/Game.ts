@@ -181,6 +181,7 @@ export class Game {
     this.missionCompleted = false;
     this.uiManager.showHud();
     this.uiManager.showMissionBriefing();
+    this.uiManager.updateKillCounter(this.enemiesKilled);
 
     this.player.reset();
     this.enemyManager.reset();
