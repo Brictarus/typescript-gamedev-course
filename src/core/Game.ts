@@ -111,6 +111,8 @@ export class Game {
 
     this.player.update(deltaTime, this.keys);
     this.particleManager.update(deltaTime);
+    this.enemyManager.update(deltaTime, this.player);
+    this.enemySpawner.update(deltaTime);
 
     if (this.player.isDeathFinished()) {
       this.gameOver();
@@ -118,8 +120,6 @@ export class Game {
     }
 
     this.collisionManager.update(this.player, activeEnemies);
-    this.enemyManager.update(deltaTime, this.player);
-    this.enemySpawner.update(deltaTime);
   }
 
   private gameLoop(time: DOMHighResTimeStamp) {
