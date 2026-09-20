@@ -24,6 +24,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
   private behaviour: ParticleBehaviour | undefined;
   fade: boolean;
   private shrink: boolean;
+  shape: string;
+  image?: string;
 
   constructor() {
     this.active = false;
@@ -43,6 +45,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
       y: 0,
     };
     this.behaviour = undefined;
+    this.shape = 'rectangle';
+    this.image = undefined;
   }
 
   update(deltaTime: number) {
@@ -93,6 +97,9 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     this.gravity.x = data.gravity.x;
     this.gravity.y = data.gravity.y;
     this.behaviour = behaviour;
+
+    this.shape = data.shape;
+    this.image = data.shape === 'image' ? data.image : undefined;
   }
 
   centerX() {

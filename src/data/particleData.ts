@@ -8,7 +8,16 @@ export type ParticleData = {
   shrink: boolean;
   gravity: { x: number; y: number };
   behaviourType: string;
-};
+} & ParticleShape;
+
+type ParticleShape =
+  | {
+      shape: 'circle' | 'rectangle';
+    }
+  | {
+      shape: 'image';
+      image: string;
+    };
 
 export const particleData: { [key: string]: ParticleData } = {
   sparks: {
@@ -21,6 +30,7 @@ export const particleData: { [key: string]: ParticleData } = {
     shrink: true,
     gravity: { x: 0, y: 250 },
     behaviourType: 'radial',
+    shape: 'rectangle',
   },
   smoke: {
     count: 12,
@@ -32,16 +42,19 @@ export const particleData: { [key: string]: ParticleData } = {
     shrink: false,
     gravity: { x: 0, y: -250 },
     behaviourType: 'radial',
+    shape: 'circle',
   },
   implosion: {
     count: 40,
     color: '#fff',
     speed: 600,
     lifetime: 2,
-    size: 10,
+    size: 16,
     fade: false,
     shrink: true,
     gravity: { x: 0, y: 0 },
     behaviourType: 'implosion',
+    shape: 'image',
+    image: 'particle_star',
   },
 };
