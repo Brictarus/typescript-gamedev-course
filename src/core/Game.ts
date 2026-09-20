@@ -146,14 +146,14 @@ export class Game {
     window.addEventListener('keydown', (e) => {
       this.keys[e.key.toLowerCase()] = true;
 
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.repeat) {
         if (this.state === 'playing') {
           this.events.emit('game:pause');
         } else if (this.state === 'paused') {
           this.events.emit('game:resume');
         }
       }
-      if (e.key === ',') {
+      if (e.key === ',' && !e.repeat) {
         this.debug = !this.debug;
       }
     });
