@@ -33,8 +33,6 @@ export class UIManager {
     returnToMenu: () => this.events.emit('game:returnToMenu', undefined),
   };
 
-  private missionBriefingTimeout: number | undefined;
-
   constructor(events: GameEventEmitter) {
     this.events = events;
 
@@ -97,7 +95,6 @@ export class UIManager {
     if (this.hudEl) {
       this.hudEl.style.display = 'none';
     }
-    clearTimeout(this.missionBriefingTimeout);
     this.hideMissionBriefing();
   }
 
@@ -118,15 +115,11 @@ export class UIManager {
   showMissionBriefing() {
     if (!this.missionBriefingEl) return;
 
-    clearTimeout(this.missionBriefingTimeout);
     this.missionBriefingEl.textContent = this.buildMissionBriefingText();
     this.missionBriefingEl.classList.add('visible');
-    this.missionBriefingTimeout = setTimeout(() => {
-      this.hideMissionBriefing();
-    }, missionData.briefingDuration * 1000);
   }
 
-  private hideMissionBriefing() {
+  hideMissionBriefing() {
     this.missionBriefingEl?.classList.remove('visible');
   }
 

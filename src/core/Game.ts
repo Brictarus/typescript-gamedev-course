@@ -39,6 +39,7 @@ export class Game {
   private enemiesKilled: number;
   private debug: boolean;
   private missionCompleted: boolean;
+  private missionBriefingEndsAt: number | null;
 
   constructor() {
     this.debug = false;
@@ -64,6 +65,7 @@ export class Game {
     this.enemiesKilled = 0;
     this.state = 'menu';
     this.missionCompleted = false;
+    this.missionBriefingEndsAt = null;
 
     this.init();
   }
@@ -127,6 +129,14 @@ export class Game {
       this.time += cappedDeltaTime;
       this.uiManager.updateTimer(this.time);
       this.checkMissionConditions();
+
+      if (
+        this.missionBriefingEndsAt !== null &&
+        this.time >= this.missionBriefingEndsAt
+      ) {
+        this.uiManager.hideMissionBriefing();
+        this.missionBriefingEndsAt = null;
+      }
     }
 
     const activeEnemies = this.enemyManager.getActiveEnemies();
@@ -176,6 +186,7 @@ export class Game {
     this.enemiesKilled = 0;
     this.missionCompleted = false;
     this.uiManager.showHud();
+    this.missionBriefingEndsAt = this.time + missionData.briefingDuration;
     this.uiManager.showMissionBriefing();
     this.uiManager.updateKillCounter(this.enemiesKilled);
 
