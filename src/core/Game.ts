@@ -248,7 +248,12 @@ export class Game {
   }
 
   private checkMissionConditions() {
-    if (this.state !== 'playing' || this.missionCompleted) return;
+    if (
+      this.state !== 'playing' ||
+      this.missionCompleted ||
+      this.player.isDead()
+    )
+      return;
     if (
       this.enemiesKilled >= missionData.killCount ||
       this.time >= missionData.surviveTime
