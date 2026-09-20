@@ -111,7 +111,7 @@ export class UIManager {
 
   updateHealth(health: number, maxHealth: number) {
     if (!this.healthBarFillEl) return;
-    const percentage = Math.max(0, health / maxHealth);
+    const percentage = Math.min(1, Math.max(0, health / maxHealth));
     this.healthBarFillEl.style.setProperty('--health-pct', `${percentage}`);
   }
 
