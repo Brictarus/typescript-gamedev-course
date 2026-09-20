@@ -87,7 +87,9 @@ export class Game {
     });
 
     this.events.on('player:damaged', ({ health, maxHealth }) => {
-      this.events.emit('sound', 'player_hurt');
+      if (!this.player.isDead()) {
+        this.events.emit('sound', 'player_hurt');
+      }
       this.uiManager.updateHealth(health, maxHealth);
     });
     this.events.on('player:died', () => {
@@ -110,13 +112,13 @@ export class Game {
     this.player.update(deltaTime, this.keys);
     this.particleManager.update(deltaTime);
     this.enemyManager.update(deltaTime, this.player);
-    this.enemySpawner.update(deltaTime);
 
     if (this.player.isDeathFinished()) {
       this.gameOver();
       return;
     }
 
+    this.enemySpawner.update(deltaTime);
     this.collisionManager.update(this.player, activeEnemies);
   }
 
@@ -128,7 +130,6 @@ export class Game {
     if (this.state === 'playing') {
       this.time += cappedDeltaTime;
       this.uiManager.updateTimer(this.time);
-      this.checkMissionConditions();
 
       if (
         this.missionBriefingEndsAt !== null &&
@@ -142,6 +143,7 @@ export class Game {
     const activeEnemies = this.enemyManager.getActiveEnemies();
 
     this.update(cappedDeltaTime, activeEnemies);
+    this.checkMissionConditions();
     this.renderSystem.render(
       this.state,
       this.player,
@@ -182,6 +184,7 @@ export class Game {
     this.events.emit('sound', 'button_click');
     this.state = 'playing';
     this.uiManager.hideAllPanels();
+    this.keys = {};
     this.time = 0;
     this.enemiesKilled = 0;
     this.missionCompleted = false;
