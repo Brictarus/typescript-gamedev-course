@@ -6,6 +6,8 @@ import type { ParticleSpawnOptions } from '../managers/ParticleSpawnOptions.ts';
 
 export type ParticleUpdateContext = void;
 
+const DEFAULT_BASE_SIZE = 4;
+
 export class Particle implements PoolableObject<ParticleUpdateContext> {
   x: number;
   y: number;
@@ -35,8 +37,8 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
     this.vy = 0;
     this.lifetime = 1;
     this.age = 0;
-    this.size = 4;
-    this.baseSize = 4;
+    this.baseSize = DEFAULT_BASE_SIZE;
+    this.size = this.baseSize;
     this.fade = false;
     this.shrink = false;
     this.color = '#fff';
@@ -67,10 +69,22 @@ export class Particle implements PoolableObject<ParticleUpdateContext> {
 
   reset(): void {
     this.active = false;
+    this.x = 0;
+    this.y = 0;
     this.vx = 0;
     this.vy = 0;
     this.age = 0;
+    this.lifetime = 0;
+    this.baseSize = DEFAULT_BASE_SIZE;
     this.size = this.baseSize;
+    this.color = '#fff';
+    this.fade = false;
+    this.shrink = false;
+    this.gravity.x = 0;
+    this.gravity.y = 0;
+    this.behaviour = undefined;
+    this.shape = 'rectangle';
+    this.image = undefined;
   }
 
   spawn(
