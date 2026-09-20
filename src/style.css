@@ -158,6 +158,7 @@ button:hover {
   text-align: center;
   opacity: 0;
   max-width: 99vw;
+  transition: opacity 0.3s ease;
 }
 
 #missionBriefing.visible {
