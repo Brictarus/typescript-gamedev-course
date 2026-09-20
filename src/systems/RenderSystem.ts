@@ -24,6 +24,11 @@ export class RenderSystem {
     this.imageManager = imageManager;
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d')!;
+    this.applySettings();
+  }
+
+  applySettings() {
+    this.ctx.imageSmoothingEnabled = false;
   }
 
   render(

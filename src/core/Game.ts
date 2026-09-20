@@ -228,6 +228,8 @@ export class Game {
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     this.canvas.style.margin = `${margin}px`;
+
+    this.renderSystem.applySettings();
   }
 
   private gameOver() {
