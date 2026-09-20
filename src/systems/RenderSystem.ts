@@ -72,7 +72,7 @@ export class RenderSystem {
   }
 
   private renderPlayer(player: Player) {
-    if (player.invincible) {
+    if (player.invincible && !player.isDead()) {
       this.ctx.globalAlpha =
         FLASH_MIN_ALPHA +
         FLASH_ALPHA_RANGE *
