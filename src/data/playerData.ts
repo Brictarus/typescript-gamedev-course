@@ -11,7 +11,7 @@ export const playerData = {
   pushbackForce: 520,
 
   animData: {
-    sheets: ['player_sheet', 'player_sheet2'],
+    sheets: ['player_sheet', 'player_sheet2', 'player_sheet3'],
     frameWidth: 64,
     frameHeight: 64,
     initialState: 'idle',
